@@ -1,0 +1,37 @@
+{
+  "name": "@crize2013/workon",
+  "version": "1.0.0-alpha.0",
+  "description": "Find and open your projects quickly",
+  "bin": {
+    "workon": "./dist/cli.mjs"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "test": "vitest run",
+    "lint": "oxlint .",
+    "format": "oxfmt --write src tests"
+  },
+  "dependencies": {
+    "commander": "^12.0.0",
+    "fast-glob": "^3.0.0",
+    "fuse.js": "^7.0.0",
+    "ink": "^5.0.0",
+    "react": "^18.0.0",
+    "zod": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/react": "^18.0.0",
+    "ink-testing-library": "^3.0.0",
+    "oxfmt": "^0.45.0",
+    "oxlint": "latest",
+    "tsdown": "latest",
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
