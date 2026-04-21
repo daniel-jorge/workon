@@ -16,6 +16,7 @@ export async function scanProjects(config: GlobalConfig): Promise<Project[]> {
         deep: config.maxDepth,
         ignore: config.ignore,
         absolute: true,
+        followSymbolicLinks: false,
       });
     } catch {
       continue;
