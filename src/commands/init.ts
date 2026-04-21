@@ -2,6 +2,7 @@ import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { loadConfig } from "../core/config.js";
 import { detectProjectType } from "../core/project.js";
+import { guessProjectMetadata } from "../core/metadata.js";
 
 export function initCommand(): void {
   const cwd = process.cwd();
@@ -13,10 +14,11 @@ export function initCommand(): void {
 
   const config = loadConfig();
   const type = detectProjectType(cwd) ?? "generic";
+  const guessedMetadata = guessProjectMetadata(cwd, type);
 
   const devProject = {
-    name: "",
-    description: "",
+    name: guessedMetadata.name ?? "",
+    description: guessedMetadata.description ?? "",
     ide: config.defaultIde,
     profile: config.defaultProfile,
     tags: [] as string[],

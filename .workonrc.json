@@ -1,7 +1,7 @@
 {
-  "name": "workon",
+  "name": "@crize2013/workon",
   "description": "Find and open your projects quickly",
-  "ide": "code-insiders",
+  "ide": "code",
   "profile": "",
   "tags": []
 }
