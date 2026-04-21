@@ -26,8 +26,10 @@ export function SearchBar({ query, onChange }: Props) {
   });
 
   return (
-    <Box>
-      <Text bold>{"Search: "}</Text>
+    <Box flexGrow={1}>
+      <Text bold color="yellow">
+        {"Search: "}
+      </Text>
       <Text>{query}</Text>
       <Text dimColor>{"█"}</Text>
     </Box>

@@ -18,8 +18,9 @@ export function App({ projects }: Props) {
 
   const filtered = useMemo(() => fuzzySearch(projects, query), [projects, query]);
 
-  // SearchBar (1) + count line (1) + HintBar (1) = 3 rows overhead
-  const maxVisible = Math.max(1, (stdout?.rows ?? 24) - 3);
+  // SearchBar (3) + HintBar (2) = 5 rows overhead
+  // Each project item takes 2 lines, so divide available space by 2
+  const maxVisible = Math.max(1, Math.floor(((stdout?.rows ?? 24) - 5) / 2));
 
   const handleQueryChange = (newQuery: string) => {
     setQuery(newQuery);
@@ -53,10 +54,14 @@ export function App({ projects }: Props) {
 
   return (
     <Box flexDirection="column" height={stdout?.rows}>
-      <SearchBar query={query} onChange={handleQueryChange} />
-      <Text dimColor>{`${filtered.length} / ${projects.length} projects`}</Text>
+      <Box borderStyle="bold" borderLeft={false} borderRight={false} borderDimColor={true} gap={1}>
+        <SearchBar query={query} onChange={handleQueryChange} />
+        <Text dimColor>{`${filtered.length} / ${projects.length} projects`}</Text>
+      </Box>
       <ProjectList projects={filtered} selectedIndex={selectedIndex} maxVisible={maxVisible} />
-      <HintBar />
+      <Box paddingTop={1}>
+        <HintBar />
+      </Box>
     </Box>
   );
 }

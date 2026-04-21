@@ -1,7 +1,6 @@
 import React from "react";
 import { Text, Box } from "ink";
 import type { Project } from "../types.js";
-import { trimPath } from "../utils.js";
 
 interface Props {
   projects: Project[];
@@ -36,19 +35,24 @@ export function ProjectList({ projects, selectedIndex, maxVisible }: Props) {
         const actualIndex = index + scrollOffset;
         const isSelected = actualIndex === selectedIndex;
         return (
-          <Box key={project.path}>
-            <Text
-              bold={isSelected}
-              backgroundColor={isSelected ? "blue" : undefined}
-              color={isSelected ? "black" : undefined}
-            >
-              {` ${project.name.padEnd(30)} `}
-            </Text>
-            <Text dimColor={!isSelected}>{`${trimPath(project.path, 50).padEnd(50)} `}</Text>
-            <Text color="cyan">{`${TYPE_LABELS[project.type] ?? project.type} `}</Text>
-            <Text color="yellow">{`${project.ide} `}</Text>
-            {project.profile ? <Text color="green">{`${project.profile} `}</Text> : null}
-            {project.hasDevProject ? <Text color="magenta">{"●"}</Text> : null}
+          <Box key={project.path} flexDirection="column">
+            <Box gap={1}>
+              <Text color="grey">{isSelected ? "█" : " "}</Text>
+              <Box flexGrow={1}>
+                <Text dimColor={!isSelected} bold={isSelected} color="blue" wrap="truncate-middle">
+                  {project.name}
+                </Text>
+              </Box>
+              <Text color="cyan" dimColor={!isSelected}>
+                {TYPE_LABELS[project.type] ?? project.type}
+              </Text>
+            </Box>
+            <Box gap={1}>
+              <Text color="grey">{isSelected ? "█" : " "}</Text>
+              <Text dimColor={!isSelected} wrap="truncate-middle">
+                {project.path}
+              </Text>
+            </Box>
           </Box>
         );
       })}
