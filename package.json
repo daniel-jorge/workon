@@ -11,7 +11,8 @@
     "dev": "tsdown --watch",
     "test": "vitest run",
     "lint": "oxlint .",
-    "format": "oxfmt --write src tests"
+    "format": "oxfmt --write src tests",
+    "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
     "commander": "^12.0.0",

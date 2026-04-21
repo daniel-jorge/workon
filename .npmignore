@@ -1,0 +1,26 @@
+# Development files
+src/
+tests/
+docs/
+
+# Configuration files
+tsconfig.json
+tsdown.config.ts
+vitest.config.ts
+.oxfmtrc.json
+.workonrc.json
+
+# Lock files
+pnpm-lock.yaml
+
+# IDE and environment
+.vscode/
+.idea/
+.git/
+.gitignore
+.env*
+
+# Misc
+*.md
+!README.md
+.npmignore

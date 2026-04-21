@@ -1,16 +1,22 @@
-# workon
+# 🚀 workon
 
 Find and open your projects quickly with this CLI tool.
 
-`workon` automatically discovers projects on your disk, remembers your preferred IDE and VS Code profile per project, and provides an interactive terminal UI to search and launch them instantly.
+## 🤔 What problem does `workon` solve?
 
-## Installation
+Juggling multiple projects? Finding the right one shouldn't be a headache. `workon` helps you discover, remember, and launch your projects in seconds.
+
+## ⚙️ How does it work?
+
+Workon is a command-line tool that helps you find and open your projects quickly. It automatically discovers projects on your disk, remembers your preferred IDE and VS Code profile per project, and provides an interactive terminal UI to search and launch them instantly.
+
+## 📦 Installation
 
 ```bash
-npm install -g workon
+npm install -g @crize2013/workon
 ```
 
-## Quick Start
+## 🎯 Quick Start
 
 ### 1. Configure Your Workspace Folders
 
@@ -59,7 +65,24 @@ Then edit `.workonrc.json` to customize:
 }
 ```
 
-## Commands
+## 💻 Commands
+
+```shell
+❯ workon --help
+Usage: workon [options] [command]
+
+Find and open your projects quickly
+
+Options:
+  -V, --version  output the version number
+  -h, --help     display help for command
+
+Commands:
+  open <query>   Open a project by name
+  list           List all discovered projects
+  init           Create a .workonrc.json file in the current directory
+  config         Manage configuration
+```
 
 ### `workon` (default)
 
@@ -113,6 +136,27 @@ This initializes a configuration file that you can edit to customize IDE, profil
 
 Manage global configuration stored in `~/.workonrc.json`.
 
+```shell
+❯ workon config --help
+Usage: workon config [options] [command]
+
+Manage configuration
+
+Options:
+  -h, --help          display help for command
+
+Commands:
+  show                Print current configuration
+  add-root <path>     Add a root folder to scan
+  remove-root <path>  Remove a root folder
+  set-ide <ide>       Set the default IDE (code or code-insiders)
+  set-profile <name>  Set the default VS Code profile
+  set-depth <number>  Set the maximum scan depth
+  help [command]      display help for command
+```
+
+Examples:
+
 ```bash
 # Add a root folder to scan
 workon config add ~/new-workspace
@@ -133,7 +177,7 @@ workon config set-depth 4
 workon config show
 ```
 
-## Configuration
+## ⚡ Configuration
 
 ### Global Configuration (`~/.workonrc.json`)
 
@@ -179,7 +223,7 @@ Add to any project root folder to override defaults:
 - `description` — Short description of the project
 - `tags` — Searchable tags
 
-## Project Discovery
+## 🔍 Project Discovery
 
 `workon` automatically detects projects by looking for marker files:
 
@@ -195,7 +239,7 @@ Add to any project root folder to override defaults:
 
 Folders matching ignore patterns (like `node_modules`, `dist`, `.git`) are skipped during scanning.
 
-## Tips & Tricks
+## 💡 Tips & Tricks
 
 ### Search More Efficiently
 
@@ -238,7 +282,7 @@ Set up VS Code profiles for different contexts (Work, Personal, etc.) and config
 }
 ```
 
-## Troubleshooting
+## 🔧 Troubleshooting
 
 **Projects not showing up?**
 
@@ -259,7 +303,7 @@ Set up VS Code profiles for different contexts (Work, Personal, etc.) and config
 - Add more patterns to `ignorePatterns`
 - Make sure `node_modules` and similar folders are ignored
 
-## Keyboard Shortcuts (Interactive TUI)
+## ⌨️ Keyboard Shortcuts (Interactive TUI)
 
 | Key       | Action                         |
 | --------- | ------------------------------ |
@@ -268,7 +312,7 @@ Set up VS Code profiles for different contexts (Work, Personal, etc.) and config
 | `Escape`  | Clear search, then exit        |
 | Type      | Filter projects (fuzzy search) |
 
-## Version
+## 📌 Version
 
 Check your version:
 
@@ -279,5 +323,5 @@ workon --version
 Update to the latest:
 
 ```bash
-npm install -g workon@latest
+npm install -g @crize2013/workon
 ```
