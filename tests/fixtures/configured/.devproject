@@ -1,0 +1,7 @@
+{
+  "name": "My Configured App",
+  "description": "A test project with devproject config",
+  "ide": "code-insiders",
+  "profile": "personal",
+  "tags": ["fixture", "test"]
+}
