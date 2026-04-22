@@ -3,6 +3,7 @@ import { Box, Text, useInput, useStdout } from "ink";
 import { SearchBar } from "./SearchBar.js";
 import { ProjectList } from "./ProjectList.js";
 import { HintBar } from "./HintBar.js";
+import { IDEDialog } from "./IDEDialog.js";
 import { fuzzySearch } from "../core/search.js";
 import { openProject } from "../core/launcher.js";
 import type { Project } from "../types.js";
@@ -14,6 +15,10 @@ interface Props {
 export function App({ projects }: Props) {
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [showIDEDialog, setShowIDEDialog] = useState(false);
+  const [selectedDialogIde, setSelectedDialogIde] = useState(
+    projects[selectedIndex]?.ide || "code",
+  );
   const { stdout } = useStdout();
 
   const filtered = useMemo(() => fuzzySearch(projects, query), [projects, query]);
@@ -27,7 +32,15 @@ export function App({ projects }: Props) {
     setSelectedIndex(0);
   };
 
-  useInput((_input, key) => {
+  useInput((input, key) => {
+    // Don't process keyboard input while IDE dialog is open
+    if (showIDEDialog) {
+      return;
+    }
+
+    // Check for SHIFT+ENTER via both key object and raw escape sequence
+    const isShiftEnter = (key.return && key.shift) || input?.includes(";2;13~");
+
     if (key.escape) {
       if (query) {
         setQuery("");
@@ -43,6 +56,12 @@ export function App({ projects }: Props) {
       setSelectedIndex((i) => Math.max(0, i - maxVisible));
     } else if (key.rightArrow) {
       setSelectedIndex((i) => Math.min(filtered.length - 1, i + maxVisible));
+    } else if (isShiftEnter && selectedIndex >= 0) {
+      const project = filtered[selectedIndex];
+      if (project) {
+        setSelectedDialogIde(project.ide);
+        setShowIDEDialog(true);
+      }
     } else if (key.return) {
       const project = filtered[selectedIndex];
       if (project) {
@@ -58,10 +77,30 @@ export function App({ projects }: Props) {
         <SearchBar query={query} onChange={handleQueryChange} />
         <Text dimColor>{`${filtered.length} / ${projects.length} projects`}</Text>
       </Box>
-      <ProjectList projects={filtered} selectedIndex={selectedIndex} maxVisible={maxVisible} />
-      <Box paddingTop={1}>
-        <HintBar />
-      </Box>
+      {!showIDEDialog && (
+        <>
+          <ProjectList projects={filtered} selectedIndex={selectedIndex} maxVisible={maxVisible} />
+          <Box paddingTop={1}>
+            <HintBar />
+          </Box>
+        </>
+      )}
+      {showIDEDialog && (
+        <Box flexDirection="column" flexGrow={1} justifyContent="center" alignItems="center">
+          <IDEDialog
+            projectName={filtered[selectedIndex]?.name || "Unknown"}
+            currentIde={selectedDialogIde}
+            onSelect={(ide) => {
+              const project = filtered[selectedIndex];
+              if (project) {
+                openProject(project, ide);
+                process.exit(0);
+              }
+            }}
+            onCancel={() => setShowIDEDialog(false)}
+          />
+        </Box>
+      )}
     </Box>
   );
 }
