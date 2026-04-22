@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
-import { guessProjectMetadata, extractReadmeFirstLine } from "../src/core/metadata.js";
+import { guessProjectMetadata, extractReadmeFirstLine } from "@/core/metadata.js";
 
 const tempDir = join(process.cwd(), ".test-temp");
 

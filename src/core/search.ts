@@ -1,5 +1,5 @@
 import Fuse from "fuse.js";
-import type { Project } from "../types.js";
+import type { Project } from "@/types.js";
 
 export function fuzzySearch(projects: Project[], query: string): Project[] {
   if (!query) return projects;

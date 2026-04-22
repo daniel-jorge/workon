@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Box, Text, useInput } from "ink";
-import { AVAILABLE_IDES } from "../core/ides.js";
+import { AVAILABLE_IDES } from "@/core/ides.js";
 
 interface IDEDialogProps {
   projectName: string;

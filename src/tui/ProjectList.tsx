@@ -1,6 +1,6 @@
 import React from "react";
 import { Text, Box } from "ink";
-import type { Project } from "../types.js";
+import type { Project } from "@/types.js";
 
 interface Props {
   projects: Project[];

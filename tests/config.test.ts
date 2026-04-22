@@ -17,7 +17,7 @@ afterEach(() => {
 
 describe("loadConfig", () => {
   it("creates defaults when file is missing", async () => {
-    const { loadConfig } = await import("../src/core/config.js");
+    const { loadConfig } = await import("@/core/config.js");
     const config = loadConfig();
     expect(config.roots).toEqual([]);
     expect(config.maxDepth).toBe(3);

@@ -1,5 +1,5 @@
-import { loadConfig } from "../core/config.js";
-import { scanProjects } from "../core/scanner.js";
+import { loadConfig } from "@/core/config.js";
+import { scanProjects } from "@/core/scanner.js";
 
 export async function listCommand(): Promise<void> {
   const config = loadConfig();

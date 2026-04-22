@@ -2,8 +2,8 @@ import { describe, it, expect } from "vitest";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
-import { scanProjects } from "../src/core/scanner.js";
-import type { GlobalConfig } from "../src/core/config.js";
+import { scanProjects } from "@/core/scanner.js";
+import type { GlobalConfig } from "@/core/config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

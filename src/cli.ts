@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import { program } from "commander";
 import { readFileSync } from "node:fs";
-import { listCommand } from "./commands/list.js";
-import { openCommand } from "./commands/open.js";
-import { initCommand } from "./commands/init.js";
-import { registerConfigCommand } from "./commands/config.js";
-import { tuiCommand } from "./commands/tui.js";
+import { listCommand } from "@/commands/list.js";
+import { openCommand } from "@/commands/open.js";
+import { initCommand } from "@/commands/init.js";
+import { registerConfigCommand } from "@/commands/config.js";
+import { tuiCommand } from "@/commands/tui.js";
 
 const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf-8")) as {
   version: string;

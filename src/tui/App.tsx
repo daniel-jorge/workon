@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from "react";
 import { Box, Text, useInput, useStdout } from "ink";
-import { SearchBar } from "./SearchBar.js";
-import { ProjectList } from "./ProjectList.js";
-import { HintBar } from "./HintBar.js";
-import { IDEDialog } from "./IDEDialog.js";
-import { fuzzySearch } from "../core/search.js";
-import { openProject } from "../core/launcher.js";
-import type { Project } from "../types.js";
+import { SearchBar } from "@/tui/SearchBar.js";
+import { ProjectList } from "@/tui/ProjectList.js";
+import { HintBar } from "@/tui/HintBar.js";
+import { IDEDialog } from "@/tui/IDEDialog.js";
+import { fuzzySearch } from "@/core/search.js";
+import { openProject } from "@/core/launcher.js";
+import type { Project } from "@/types.js";
 
 interface Props {
   projects: Project[];

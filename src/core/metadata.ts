@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, basename } from "node:path";
-import type { ProjectType } from "../types.js";
+import type { ProjectType } from "@/types.js";
 
 const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1 MiB
 

@@ -1,7 +1,7 @@
-import { loadConfig } from "../core/config.js";
-import { scanProjects } from "../core/scanner.js";
-import { fuzzySearch } from "../core/search.js";
-import { openProject } from "../core/launcher.js";
+import { loadConfig } from "@/core/config.js";
+import { scanProjects } from "@/core/scanner.js";
+import { fuzzySearch } from "@/core/search.js";
+import { openProject } from "@/core/launcher.js";
 
 export async function openCommand(query: string): Promise<void> {
   const config = loadConfig();

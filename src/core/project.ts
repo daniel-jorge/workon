@@ -1,6 +1,6 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join, basename } from "node:path";
-import type { ProjectType, Project } from "../types.js";
+import type { ProjectType, Project } from "@/types.js";
 import type { GlobalConfig } from "./config.js";
 import type { DevProject } from "./devproject.js";
 

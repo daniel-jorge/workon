@@ -2,7 +2,7 @@ import fg from "fast-glob";
 import { detectProjectType, mergeProject } from "./project.js";
 import { loadDevProject } from "./devproject.js";
 import type { GlobalConfig } from "./config.js";
-import type { Project } from "../types.js";
+import type { Project } from "@/types.js";
 
 export async function scanProjects(config: GlobalConfig): Promise<Project[]> {
   const projects: Project[] = [];

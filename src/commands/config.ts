@@ -1,5 +1,5 @@
 import type { Command } from "commander";
-import { loadConfig, saveConfig } from "../core/config.js";
+import { loadConfig, saveConfig } from "@/core/config.js";
 
 export function registerConfigCommand(program: Command): void {
   const config = program.command("config").description("Manage configuration");
