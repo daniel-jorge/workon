@@ -1,18 +1,23 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Box, Text, useInput, useStdout } from "ink";
 import { SearchBar } from "@/tui/SearchBar.js";
 import { ProjectList } from "@/tui/ProjectList.js";
 import { HintBar } from "@/tui/HintBar.js";
 import { IDEDialog } from "@/tui/IDEDialog.js";
+import { Spinner } from "@/tui/Spinner.js";
 import { fuzzySearch } from "@/core/search.js";
 import { openProject } from "@/core/launcher.js";
+import { scanProjects } from "@/core/scanner.js";
 import type { Project } from "@/types.js";
+import type { GlobalConfig } from "@/core/config.js";
 
 interface Props {
-  projects: Project[];
+  config: GlobalConfig;
 }
 
-export function App({ projects }: Props) {
+export function App({ config }: Props) {
+  const [isLoading, setIsLoading] = useState(true);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [showIDEDialog, setShowIDEDialog] = useState(false);
@@ -20,6 +25,14 @@ export function App({ projects }: Props) {
     projects[selectedIndex]?.ide || "code",
   );
   const { stdout } = useStdout();
+
+  // Scan projects on component mount
+  useEffect(() => {
+    scanProjects(config).then((scannedProjects) => {
+      setProjects(scannedProjects);
+      setIsLoading(false);
+    });
+  }, [config]);
 
   const filtered = useMemo(() => fuzzySearch(projects, query), [projects, query]);
 
@@ -33,6 +46,11 @@ export function App({ projects }: Props) {
   };
 
   useInput((input, key) => {
+    // Exit immediately if Escape is pressed during loading
+    if (isLoading && key.escape) {
+      process.exit(0);
+    }
+
     // Don't process keyboard input while IDE dialog is open
     if (showIDEDialog) {
       return;
@@ -73,33 +91,49 @@ export function App({ projects }: Props) {
 
   return (
     <Box flexDirection="column" height={stdout?.rows}>
-      <Box borderStyle="bold" borderLeft={false} borderRight={false} borderDimColor={true} gap={1}>
-        <SearchBar query={query} onChange={handleQueryChange} />
-        <Text dimColor>{`${filtered.length} / ${projects.length} projects`}</Text>
-      </Box>
-      {!showIDEDialog && (
+      {isLoading ? (
+        <Spinner status="Scanning for projects…" />
+      ) : (
         <>
-          <ProjectList projects={filtered} selectedIndex={selectedIndex} maxVisible={maxVisible} />
-          <Box paddingTop={1}>
-            <HintBar />
+          <Box
+            borderStyle="bold"
+            borderLeft={false}
+            borderRight={false}
+            borderDimColor={true}
+            gap={1}
+          >
+            <SearchBar query={query} onChange={handleQueryChange} />
+            <Text dimColor>{`${filtered.length} / ${projects.length} projects`}</Text>
           </Box>
+          {!showIDEDialog && (
+            <>
+              <ProjectList
+                projects={filtered}
+                selectedIndex={selectedIndex}
+                maxVisible={maxVisible}
+              />
+              <Box paddingTop={1}>
+                <HintBar />
+              </Box>
+            </>
+          )}
+          {showIDEDialog && (
+            <Box flexDirection="column" flexGrow={1} justifyContent="center" alignItems="center">
+              <IDEDialog
+                projectName={filtered[selectedIndex]?.name || "Unknown"}
+                currentIde={selectedDialogIde}
+                onSelect={(ide) => {
+                  const project = filtered[selectedIndex];
+                  if (project) {
+                    openProject(project, ide);
+                    process.exit(0);
+                  }
+                }}
+                onCancel={() => setShowIDEDialog(false)}
+              />
+            </Box>
+          )}
         </>
-      )}
-      {showIDEDialog && (
-        <Box flexDirection="column" flexGrow={1} justifyContent="center" alignItems="center">
-          <IDEDialog
-            projectName={filtered[selectedIndex]?.name || "Unknown"}
-            currentIde={selectedDialogIde}
-            onSelect={(ide) => {
-              const project = filtered[selectedIndex];
-              if (project) {
-                openProject(project, ide);
-                process.exit(0);
-              }
-            }}
-            onCancel={() => setShowIDEDialog(false)}
-          />
-        </Box>
       )}
     </Box>
   );
