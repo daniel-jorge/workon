@@ -71,6 +71,14 @@ and provides an interactive terminal UI to search and launch them.
   - Set the maximum scan depth
   - Print the current configuration
 
+### F9 — Scanner Spinner
+
+- Display an animated spinner in the TUI while scanning folders
+- Spinner appears immediately when the scan starts
+- Spinner is replaced by the project list once the scan completes
+- Provides visual feedback that the application is responsive and working
+- Improves perceived performance for users scanning multiple or deep folder hierarchies
+
 ---
 
 ## User Flows
