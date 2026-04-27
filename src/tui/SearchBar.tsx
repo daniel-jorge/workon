@@ -9,7 +9,7 @@ interface Props {
 export function SearchBar({ query, onChange }: Props) {
   useInput((input, key) => {
     // Filter out SHIFT+ENTER escape sequences before processing
-    if (input?.includes(';2;13~')) {
+    if (input?.includes(";2;13~")) {
       return; // Don't process SHIFT+ENTER in search
     }
     if (key.return && key.shift) {
@@ -20,6 +20,7 @@ export function SearchBar({ query, onChange }: Props) {
       return;
     }
     // Ignore other escape sequences and control characters
+    // oxlint-disable-next-line no-control-regex
     if (input && /^\x1b|^\[/.test(input)) {
       return;
     }

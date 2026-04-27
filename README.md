@@ -41,7 +41,8 @@ This opens an interactive terminal UI where you can:
 
 - **Search** by typing the project name (live fuzzy matching)
 - **Navigate** with arrow keys
-- **Open** by pressing Enter
+- **Open** by pressing Enter (opens Launch Menu with IDE selection and pin toggle)
+- **Pin/Unpin** projects from the Launch Menu for quick access
 - **Exit** by pressing Escape
 
 ### 3. Optional: Configure Per-Project Settings
@@ -82,6 +83,7 @@ Commands:
   list           List all discovered projects
   init           Create a .workonrc.json file in the current directory
   config         Manage configuration
+  pin            Manage pinned projects
 ```
 
 ### `workon` (default)
@@ -95,10 +97,12 @@ workon
 **Features:**
 
 - Live fuzzy search as you type
+- Pinned projects appear first (marked with 📌) for quick access
 - Alphabetically sorted project list
 - Shows project type (Node.js, Rust, Python, Go, Java, .NET)
 - Shows configured IDE and profile
 - Displays count of matching projects vs. total
+- Launch Menu with IDE selection and pin toggle on Enter
 
 ### `workon open <query>`
 
@@ -177,6 +181,56 @@ workon config set-depth 4
 workon config show
 ```
 
+### `workon pin`
+
+Manage your pinned projects for quick access.
+
+#### `workon pin list`
+
+List all pinned projects in order.
+
+```bash
+workon pin list
+```
+
+Output example:
+
+```
+[📌] my-app — /Users/user/projects/my-app
+[📌] legacy-service — /Users/user/projects/legacy-service
+```
+
+#### `workon pin open <project-name>`
+
+Open a pinned project directly by name (supports fuzzy matching).
+
+```bash
+workon pin open my-app
+workon pin open "legacy-service"
+```
+
+The project launches with the configured IDE.
+
+#### `workon pin toggle <project-name>`
+
+Toggle the pin status of a project (add to or remove from pinned projects).
+
+```bash
+workon pin toggle my-app
+```
+
+When adding a project to pins:
+
+```
+✓ Pinned my-app
+```
+
+When removing from pins:
+
+```
+✓ Unpinned my-app
+```
+
 ## ⚡ Configuration
 
 ### Global Configuration (`~/.workonrc.json`)
@@ -189,7 +243,8 @@ Created automatically on first use. Edit directly or use `workon config` command
   "maxScanDepth": 3,
   "defaultIde": "code",
   "defaultProfile": "default",
-  "ignorePatterns": ["node_modules", "dist", ".git", ".venv"]
+  "ignorePatterns": ["node_modules", "dist", ".git", ".venv"],
+  "pinned": ["/Users/user/projects/my-app", "/Users/user/projects/legacy-service"]
 }
 ```
 
@@ -200,6 +255,7 @@ Created automatically on first use. Edit directly or use `workon config` command
 - `defaultIde` — Default IDE to use (`code` or `code-insiders`)
 - `defaultProfile` — Default VS Code profile name
 - `ignorePatterns` — Folders/files to skip during scanning
+- `pinned` — Array of absolute paths to pinned projects (for quick access)
 
 ### Per-Project Configuration (`.workonrc.json`)
 
@@ -259,6 +315,24 @@ workon config add ~/personal
 workon config add ~/clients
 ```
 
+### Pin Your Favorite Projects
+
+Pin frequently-used projects for quick access at the top of the project list:
+
+```bash
+# In the interactive TUI: press Enter on a project, then navigate to "Pin Project"
+# Or from the CLI:
+workon pin toggle my-app
+
+# List all pinned projects
+workon pin list
+
+# Open a pinned project directly
+workon pin open my-app
+```
+
+Pinned projects always appear first in the project list (marked with 📌) and persist across sessions.
+
 ### Organize Projects with Tags
 
 Use `.workonrc.json` to tag projects for better organization:
@@ -305,12 +379,24 @@ Set up VS Code profiles for different contexts (Work, Personal, etc.) and config
 
 ## ⌨️ Keyboard Shortcuts (Interactive TUI)
 
+### Project List
+
 | Key       | Action                         |
 | --------- | ------------------------------ |
 | `↑` / `↓` | Navigate project list          |
-| `Enter`   | Open selected project          |
+| `Enter`   | Open Project Menu              |
 | `Escape`  | Clear search, then exit        |
 | Type      | Filter projects (fuzzy search) |
+
+### Launch Menu
+
+| Key       | Action                                   |
+| --------- | ---------------------------------------- |
+| `↑` / `↓` | Navigate between options                 |
+| `1–X`     | Quick-select IDE                         |
+| `P`       | Toggle pin/unpin project                 |
+| `Enter`   | Confirm selection (launch or toggle pin) |
+| `Escape`  | Cancel and return to list                |
 
 ## 📌 Version
 

@@ -1,11 +1,14 @@
 import React from "react";
 import { Text, Box } from "ink";
+import { isPinned } from "@/core/pinning.js";
 import type { Project } from "@/types.js";
+import type { GlobalConfig } from "@/core/config.js";
 
 interface Props {
   projects: Project[];
   selectedIndex: number;
   maxVisible: number;
+  config: GlobalConfig;
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -18,7 +21,7 @@ const TYPE_LABELS: Record<string, string> = {
   generic: "Generic",
 };
 
-export function ProjectList({ projects, selectedIndex, maxVisible }: Props) {
+export function ProjectList({ projects, selectedIndex, maxVisible, config }: Props) {
   if (projects.length === 0) {
     return <Text dimColor>{"No projects found"}</Text>;
   }
@@ -34,12 +37,25 @@ export function ProjectList({ projects, selectedIndex, maxVisible }: Props) {
       {visible.map((project, index) => {
         const actualIndex = index + scrollOffset;
         const isSelected = actualIndex === selectedIndex;
+        const pinned = isPinned(project.path, config);
+        const missing = project.missing === true;
+
         return (
-          <Box key={project.path} flexDirection="column">
-            <Box gap={1}>
-              <Text color="grey">{isSelected ? "█" : " "}</Text>
+          <Box
+            key={project.path}
+            flexDirection="column"
+            backgroundColor={isSelected ? "blackBright" : undefined}
+          >
+            <Box marginRight={1}>
+              <Text>{pinned ? "📌 " : ""}</Text>
+              {missing && <Text color="red">⚠️</Text>}
               <Box flexGrow={1}>
-                <Text dimColor={!isSelected} bold={isSelected} color="blue" wrap="truncate-middle">
+                <Text
+                  dimColor={!isSelected && !pinned}
+                  bold={isSelected}
+                  color={missing ? "red" : "blue"}
+                  wrap="truncate-middle"
+                >
                   {project.name}
                 </Text>
               </Box>
@@ -47,10 +63,10 @@ export function ProjectList({ projects, selectedIndex, maxVisible }: Props) {
                 {TYPE_LABELS[project.type] ?? project.type}
               </Text>
             </Box>
-            <Box gap={1}>
-              <Text color="grey">{isSelected ? "█" : " "}</Text>
+            <Box flexGrow={1}>
               <Text dimColor={!isSelected} wrap="truncate-middle">
                 {project.path}
+                {missing && <Text color="red"> (not found)</Text>}
               </Text>
             </Box>
           </Box>

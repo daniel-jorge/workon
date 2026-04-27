@@ -15,6 +15,7 @@ const baseConfig: GlobalConfig = {
   defaultIde: "code",
   defaultProfile: "",
   ignore: ["node_modules", "dist", ".git"],
+  pinned: [],
 };
 
 describe("scanProjects", () => {
@@ -69,5 +70,70 @@ describe("scanProjects", () => {
     const cfg = { ...baseConfig, roots: ["/nonexistent/path/12345"] };
     const projects = await scanProjects(cfg);
     expect(projects).toEqual([]);
+  });
+
+  it("places pinned projects first, then unpinned", async () => {
+    // Find the actual project paths from a scan
+    const projects = await scanProjects(baseConfig);
+    const alpha = projects.find((p) => p.name === "alpha");
+    const beta = projects.find((p) => p.name === "beta");
+
+    if (!alpha || !beta) {
+      // Skip if projects not found
+      expect(alpha).toBeDefined();
+      return;
+    }
+
+    // Pin beta (which would normally come before alpha alphabetically)
+    const cfgWithPin = { ...baseConfig, pinned: [beta.path] };
+    const sortedProjects = await scanProjects(cfgWithPin);
+
+    // Find positions
+    const alphaPos = sortedProjects.findIndex((p) => p.path === alpha.path);
+    const betaPos = sortedProjects.findIndex((p) => p.path === beta.path);
+
+    // Beta should come before alpha because it's pinned
+    expect(betaPos).toBeLessThan(alphaPos);
+  });
+
+  it("shows missing pinned projects with missing flag", async () => {
+    const missingPath = "/nonexistent/missing/project";
+    const cfg = { ...baseConfig, pinned: [missingPath] };
+    const projects = await scanProjects(cfg);
+
+    const missing = projects.find((p) => p.path === missingPath);
+    expect(missing).toBeDefined();
+    expect(missing?.missing).toBe(true);
+    expect(missing?.description).toBe("(not found)");
+  });
+
+  it("maintains alphabetical order within pinned and unpinned groups", async () => {
+    const projects = await scanProjects(baseConfig);
+
+    // Get first two projects to pin (should be alpha and beta)
+    const toPin = [projects[0], projects[1]];
+    if (!toPin[0] || !toPin[1]) {
+      expect(toPin[0]).toBeDefined();
+      return;
+    }
+
+    const cfg = { ...baseConfig, pinned: [toPin[0].path, toPin[1].path] };
+    const sorted = await scanProjects(cfg);
+
+    // Extract pinned projects
+    const pinnedProjects = sorted.filter((p) => cfg.pinned.includes(p.path));
+    const pinnedNames = pinnedProjects.map((p) => p.name);
+    const pinnedSorted = [...pinnedNames].sort();
+
+    // Check that pinned projects are in alphabetical order
+    expect(pinnedNames).toEqual(pinnedSorted);
+
+    // Extract unpinned projects
+    const unpinnedProjects = sorted.filter((p) => !cfg.pinned.includes(p.path) && !p.missing);
+    const unpinnedNames = unpinnedProjects.map((p) => p.name);
+    const unpinnedSorted = [...unpinnedNames].sort();
+
+    // Check that unpinned projects are in alphabetical order
+    expect(unpinnedNames).toEqual(unpinnedSorted);
   });
 });

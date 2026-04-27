@@ -1,5 +1,6 @@
 import type { Command } from "commander";
 import { loadConfig, saveConfig } from "@/core/config.js";
+import { validatePinnedPaths } from "@/core/pinning.js";
 
 export function registerConfigCommand(program: Command): void {
   const config = program.command("config").description("Manage configuration");
@@ -78,5 +79,29 @@ export function registerConfigCommand(program: Command): void {
       cfg.maxDepth = n;
       saveConfig(cfg);
       console.log(`Max depth set to: ${n}`);
+    });
+
+  config
+    .command("cleanup-pins")
+    .description("Remove missing pinned project entries")
+    .action(() => {
+      const cfg = loadConfig();
+      if (cfg.pinned.length === 0) {
+        console.log("No pinned projects to clean up");
+        return;
+      }
+
+      const { valid, invalid } = validatePinnedPaths(cfg.pinned);
+      if (invalid.length === 0) {
+        console.log("All pinned projects are valid");
+        return;
+      }
+
+      console.log(`Found ${invalid.length} missing pin(s):`);
+      invalid.forEach((path) => console.log(`  - ${path}`));
+
+      cfg.pinned = valid;
+      saveConfig(cfg);
+      console.log(`✓ Removed ${invalid.length} missing pin(s)`);
     });
 }

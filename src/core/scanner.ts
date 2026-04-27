@@ -1,6 +1,7 @@
 import fg from "fast-glob";
 import { detectProjectType, mergeProject } from "./project.js";
 import { loadDevProject } from "./devproject.js";
+import { isPinned } from "./pinning.js";
 import type { GlobalConfig } from "./config.js";
 import type { Project } from "@/types.js";
 
@@ -29,5 +30,42 @@ export async function scanProjects(config: GlobalConfig): Promise<Project[]> {
     }
   }
 
-  return projects.sort((a, b) => a.name.localeCompare(b.name));
+  // Sort alphabetically
+  projects.sort((a, b) => a.name.localeCompare(b.name));
+
+  // Add placeholder projects for missing pinned paths
+  const foundPaths = new Set(projects.map((p) => p.path));
+  for (const pinnedPath of config.pinned) {
+    if (!foundPaths.has(pinnedPath)) {
+      projects.push({
+        name: pinnedPath,
+        path: pinnedPath,
+        type: "generic",
+        ide: config.defaultIde,
+        profile: config.defaultProfile,
+        description: "(not found)",
+        tags: [],
+        hasDevProject: false,
+        missing: true,
+      });
+    }
+  }
+
+  // Split into pinned and unpinned, maintaining alphabetical order within each group
+  const pinned: Project[] = [];
+  const unpinned: Project[] = [];
+
+  for (const project of projects) {
+    if (isPinned(project.path, config)) {
+      pinned.push(project);
+    } else {
+      unpinned.push(project);
+    }
+  }
+
+  // Keep alphabetical order within each group
+  pinned.sort((a, b) => a.name.localeCompare(b.name));
+  unpinned.sort((a, b) => a.name.localeCompare(b.name));
+
+  return [...pinned, ...unpinned];
 }

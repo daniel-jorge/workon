@@ -11,6 +11,7 @@ export const GlobalConfigSchema = z.object({
   ignore: z
     .array(z.string())
     .default(["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**", "**/.venv/**"]),
+  pinned: z.array(z.string()).default([]),
 });
 
 export type GlobalConfig = z.infer<typeof GlobalConfigSchema>;

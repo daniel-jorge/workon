@@ -3,11 +3,14 @@ import { Box, Text, useInput, useStdout } from "ink";
 import { SearchBar } from "@/tui/SearchBar.js";
 import { ProjectList } from "@/tui/ProjectList.js";
 import { HintBar } from "@/tui/HintBar.js";
-import { IDEDialog } from "@/tui/IDEDialog.js";
+import { LaunchMenu } from "@/tui/LaunchMenu.js";
+import { ContextMenu } from "@/tui/ContextMenu.js";
 import { Spinner } from "@/tui/Spinner.js";
 import { fuzzySearch } from "@/core/search.js";
 import { openProject } from "@/core/launcher.js";
 import { scanProjects } from "@/core/scanner.js";
+import { saveConfig } from "@/core/config.js";
+import { togglePin, isPinned } from "@/core/pinning.js";
 import type { Project } from "@/types.js";
 import type { GlobalConfig } from "@/core/config.js";
 
@@ -20,19 +23,18 @@ export function App({ config }: Props) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [showIDEDialog, setShowIDEDialog] = useState(false);
-  const [selectedDialogIde, setSelectedDialogIde] = useState(
-    projects[selectedIndex]?.ide || "code",
-  );
+  const [showLaunchMenu, setShowLaunchMenu] = useState(false);
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [currentConfig, setCurrentConfig] = useState(config);
   const { stdout } = useStdout();
 
   // Scan projects on component mount
   useEffect(() => {
-    scanProjects(config).then((scannedProjects) => {
+    scanProjects(currentConfig).then((scannedProjects) => {
       setProjects(scannedProjects);
       setIsLoading(false);
     });
-  }, [config]);
+  }, [currentConfig]);
 
   const filtered = useMemo(() => fuzzySearch(projects, query), [projects, query]);
 
@@ -51,13 +53,17 @@ export function App({ config }: Props) {
       process.exit(0);
     }
 
-    // Don't process keyboard input while IDE dialog is open
-    if (showIDEDialog) {
+    // Don't process keyboard input while Launch menu is open
+    if (showLaunchMenu) {
       return;
     }
 
-    // Check for SHIFT+ENTER via both key object and raw escape sequence
-    const isShiftEnter = (key.return && key.shift) || input?.includes(";2;13~");
+    // If context menu is open, useInput from ContextMenu handles input
+    if (showContextMenu) {
+      return;
+    }
+
+    const isMetaM = key.meta && input === "m";
 
     if (key.escape) {
       if (query) {
@@ -74,17 +80,16 @@ export function App({ config }: Props) {
       setSelectedIndex((i) => Math.max(0, i - maxVisible));
     } else if (key.rightArrow) {
       setSelectedIndex((i) => Math.min(filtered.length - 1, i + maxVisible));
-    } else if (isShiftEnter && selectedIndex >= 0) {
-      const project = filtered[selectedIndex];
-      if (project) {
-        setSelectedDialogIde(project.ide);
-        setShowIDEDialog(true);
+    } else if (isMetaM && selectedIndex >= 0) {
+      // Open context menu with META+M
+      if (selectedIndex >= 0 && filtered[selectedIndex]) {
+        setShowContextMenu(true);
       }
-    } else if (key.return) {
+    } else if (key.return && selectedIndex >= 0) {
+      // Open Launch Menu on Enter
       const project = filtered[selectedIndex];
       if (project) {
-        openProject(project);
-        process.exit(0);
+        setShowLaunchMenu(true);
       }
     }
   });
@@ -95,41 +100,80 @@ export function App({ config }: Props) {
         <Spinner status="Scanning for projects…" />
       ) : (
         <>
-          <Box
-            borderStyle="bold"
-            borderLeft={false}
-            borderRight={false}
-            borderDimColor={true}
-            gap={1}
-          >
-            <SearchBar query={query} onChange={handleQueryChange} />
-            <Text dimColor>{`${filtered.length} / ${projects.length} projects`}</Text>
-          </Box>
-          {!showIDEDialog && (
+          {!showLaunchMenu && (
+            <Box
+              borderStyle="bold"
+              borderLeft={false}
+              borderRight={false}
+              borderDimColor={true}
+              gap={1}
+            >
+              <SearchBar query={query} onChange={handleQueryChange} />
+              <Text dimColor>{`${filtered.length} / ${projects.length} projects`}</Text>
+            </Box>
+          )}
+          {!showLaunchMenu && (
             <>
               <ProjectList
                 projects={filtered}
                 selectedIndex={selectedIndex}
                 maxVisible={maxVisible}
+                config={currentConfig}
               />
               <Box paddingTop={1}>
                 <HintBar />
               </Box>
             </>
           )}
-          {showIDEDialog && (
+          {showLaunchMenu && (
             <Box flexDirection="column" flexGrow={1} justifyContent="center" alignItems="center">
-              <IDEDialog
-                projectName={filtered[selectedIndex]?.name || "Unknown"}
-                currentIde={selectedDialogIde}
-                onSelect={(ide) => {
-                  const project = filtered[selectedIndex];
-                  if (project) {
-                    openProject(project, ide);
-                    process.exit(0);
-                  }
-                }}
-                onCancel={() => setShowIDEDialog(false)}
+              {filtered[selectedIndex] && (
+                <LaunchMenu
+                  visible={showLaunchMenu}
+                  projectName={filtered[selectedIndex].name}
+                  currentIde={filtered[selectedIndex].ide}
+                  isPinned={isPinned(filtered[selectedIndex].path, currentConfig)}
+                  isMissing={filtered[selectedIndex].missing === true}
+                  onSelectIde={(ide) => {
+                    const project = filtered[selectedIndex];
+                    if (project) {
+                      openProject(project, ide);
+                      process.exit(0);
+                    }
+                  }}
+                  onTogglePin={async () => {
+                    const project = filtered[selectedIndex];
+                    if (project) {
+                      const updated = togglePin(project.path, currentConfig);
+                      await saveConfig(updated);
+                      setCurrentConfig(updated);
+                      setShowLaunchMenu(false);
+                    }
+                  }}
+                  onCancel={() => setShowLaunchMenu(false)}
+                />
+              )}
+            </Box>
+          )}
+          {showContextMenu && (
+            <Box flexDirection="column" flexGrow={1} justifyContent="center" alignItems="center">
+              <ContextMenu
+                visible={showContextMenu}
+                options={[
+                  {
+                    label: "Pin",
+                    key: "P",
+                    action: async () => {
+                      const project = filtered[selectedIndex];
+                      if (project && !project.missing) {
+                        const updated = togglePin(project.path, currentConfig);
+                        await saveConfig(updated);
+                        setCurrentConfig(updated);
+                      }
+                    },
+                  },
+                ]}
+                onClose={() => setShowContextMenu(false)}
               />
             </Box>
           )}
