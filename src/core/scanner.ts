@@ -41,7 +41,7 @@ export async function scanProjects(config: GlobalConfig): Promise<Project[]> {
         name: pinnedPath,
         path: pinnedPath,
         type: "generic",
-        ide: config.defaultIde,
+        openCommand: config.defaultOpenCommand,
         profile: config.defaultProfile,
         description: "(not found)",
         tags: [],
