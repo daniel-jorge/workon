@@ -2,22 +2,25 @@ import { z } from "zod";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
-export const DevProjectSchema = z
-  .object({
+export const DevProjectSchema = z.preprocess(
+  (raw) => {
+    // Migration: if old project has ide, migrate to openCommand
+    if (typeof raw === "object" && raw !== null) {
+      const obj = raw as Record<string, unknown>;
+      if (obj.ide && !obj.openCommand) {
+        obj.openCommand = obj.ide;
+      }
+    }
+    return raw;
+  },
+  z.object({
     name: z.string().optional(),
     description: z.string().optional(),
     openCommand: z.string().optional(),
     profile: z.string().optional(),
     tags: z.array(z.string()).default([]),
-  })
-  .transform((project) => {
-    // Migration: if old project has ide, migrate to openCommand
-    const raw = project as Record<string, unknown>;
-    if (!raw.openCommand && raw.ide) {
-      project.openCommand = raw.ide as string;
-    }
-    return project;
-  });
+  }),
+);
 
 export type DevProject = z.infer<typeof DevProjectSchema>;
 
