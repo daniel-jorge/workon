@@ -65,8 +65,7 @@ export function ContextMenu({ visible, options, onClose }: ContextMenuProps) {
         return (
           <Box key={option.key}>
             <Text bold={isSelected} color={isSelected ? "green" : undefined}>
-              {isSelected ? "▸ " : "  "}
-              [{option.key}] {option.label}
+              {isSelected ? "▸ " : "  "}[{option.key}] {option.label}
             </Text>
           </Box>
         );

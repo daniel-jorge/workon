@@ -38,9 +38,14 @@ describe("mergeProject", () => {
   const baseConfig = {
     roots: [],
     maxDepth: 3,
-    defaultIde: "code" as const,
+    defaultOpenCommand: "code" as const,
+    openCommands: [
+      { name: "Visual Studio Code", command: "code" },
+      { name: "VS Code Insiders", command: "code-insiders" },
+    ],
     defaultProfile: "",
     ignore: ["node_modules", "dist", ".git"],
+    pinned: [] as string[],
   };
 
   it("uses folder basename as name when no devproject", () => {
@@ -56,20 +61,25 @@ describe("mergeProject", () => {
     expect(project.name).toBe("My App");
   });
 
-  it("uses global config defaults for ide and profile", () => {
+  it("uses global config defaults for openCommand and profile", () => {
     const project = mergeProject(join(FIXTURES, "nodejs"), baseConfig);
-    expect(project.ide).toBe("code");
+    expect(project.openCommand).toBe("code");
     expect(project.profile).toBe("");
   });
 
-  it("overrides ide and profile from devproject", () => {
+  it("overrides openCommand and profile from devproject", () => {
     const project = mergeProject(join(FIXTURES, "configured"), baseConfig, {
-      ide: "code-insiders",
+      openCommand: "code-insiders",
       profile: "personal",
       tags: [],
     });
-    expect(project.ide).toBe("code-insiders");
+    expect(project.openCommand).toBe("code-insiders");
     expect(project.profile).toBe("personal");
+  });
+
+  it("falls back to first command when defaultOpenCommand is not in openCommands", () => {
+    const project = mergeProject(join(FIXTURES, "nodejs"), baseConfig);
+    expect(project.openCommand).toBe("code");
   });
 
   it("marks hasDevProject true when devproject is provided", () => {

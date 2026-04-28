@@ -126,7 +126,8 @@ describe("edge cases - invalid entries", () => {
       JSON.stringify({
         roots: [],
         maxDepth: 3,
-        defaultIde: "code",
+        defaultOpenCommand: "code",
+        openCommands: [{ name: "Code", command: "code" }],
         defaultProfile: "",
         ignore: [],
         pinned: ["/valid/path"], // Schema should only allow strings
@@ -158,7 +159,7 @@ describe("edge cases - ambiguous project names", () => {
         name: "app",
         path: "/path/app",
         type: "nodejs" as const,
-        ide: "code" as const,
+        openCommand: "code" as const,
         profile: "",
         description: "",
         tags: [],
@@ -168,7 +169,7 @@ describe("edge cases - ambiguous project names", () => {
         name: "app-legacy",
         path: "/path/app-legacy",
         type: "nodejs" as const,
-        ide: "code" as const,
+        openCommand: "code" as const,
         profile: "",
         description: "",
         tags: [],
@@ -178,7 +179,7 @@ describe("edge cases - ambiguous project names", () => {
         name: "application",
         path: "/path/application",
         type: "nodejs" as const,
-        ide: "code" as const,
+        openCommand: "code" as const,
         profile: "",
         description: "",
         tags: [],
@@ -199,7 +200,7 @@ describe("edge cases - ambiguous project names", () => {
         name: "app-legacy",
         path: "/path/app-legacy",
         type: "nodejs" as const,
-        ide: "code" as const,
+        openCommand: "code" as const,
         profile: "",
         description: "",
         tags: [],
@@ -209,7 +210,7 @@ describe("edge cases - ambiguous project names", () => {
         name: "application",
         path: "/path/application",
         type: "nodejs" as const,
-        ide: "code" as const,
+        openCommand: "code" as const,
         profile: "",
         description: "",
         tags: [],
@@ -240,7 +241,8 @@ describe("edge cases - empty states", () => {
     const config = {
       roots: [],
       maxDepth: 3,
-      defaultIde: "code" as const,
+      defaultOpenCommand: "code" as const,
+      openCommands: [{ name: "Code", command: "code" }],
       defaultProfile: "",
       ignore: [],
       pinned: [],
@@ -273,7 +275,8 @@ describe("edge cases - path normalization", () => {
     const config = {
       roots: [],
       maxDepth: 3,
-      defaultIde: "code" as const,
+      defaultOpenCommand: "code" as const,
+      openCommands: [{ name: "Code", command: "code" }],
       defaultProfile: "",
       ignore: [],
       pinned: ["/home/user/project"],
@@ -288,7 +291,8 @@ describe("edge cases - path normalization", () => {
     const config = {
       roots: [],
       maxDepth: 3,
-      defaultIde: "code" as const,
+      defaultOpenCommand: "code" as const,
+      openCommands: [{ name: "Code", command: "code" }],
       defaultProfile: "",
       ignore: [],
       pinned: [],
@@ -308,7 +312,8 @@ describe("edge cases - large pinned lists", () => {
     let config = {
       roots: [],
       maxDepth: 3,
-      defaultIde: "code" as const,
+      defaultOpenCommand: "code" as const,
+      openCommands: [{ name: "Code", command: "code" }],
       defaultProfile: "",
       ignore: [],
       pinned: [],
@@ -357,7 +362,8 @@ describe("edge cases - special characters in paths", () => {
     let config = {
       roots: [],
       maxDepth: 3,
-      defaultIde: "code" as const,
+      defaultOpenCommand: "code" as const,
+      openCommands: [{ name: "Code", command: "code" }],
       defaultProfile: "",
       ignore: [],
       pinned: [],
@@ -374,7 +380,8 @@ describe("edge cases - special characters in paths", () => {
     let config = {
       roots: [],
       maxDepth: 3,
-      defaultIde: "code" as const,
+      defaultOpenCommand: "code" as const,
+      openCommands: [{ name: "Code", command: "code" }],
       defaultProfile: "",
       ignore: [],
       pinned: [],
@@ -391,7 +398,8 @@ describe("edge cases - special characters in paths", () => {
     let config = {
       roots: [],
       maxDepth: 3,
-      defaultIde: "code" as const,
+      defaultOpenCommand: "code" as const,
+      openCommands: [{ name: "Code", command: "code" }],
       defaultProfile: "",
       ignore: [],
       pinned: [],
@@ -428,14 +436,14 @@ describe("config persistence and validation", () => {
     let config = loadConfig();
     config.roots = ["/test/root"];
     config.maxDepth = 5;
-    config.defaultIde = "code-insiders" as const;
+    config.defaultOpenCommand = "code-insiders" as const;
     config.pinned = ["/test/project"];
     saveConfig(config);
 
     const reloaded = loadConfig();
     expect(reloaded.roots).toEqual(["/test/root"]);
     expect(reloaded.maxDepth).toBe(5);
-    expect(reloaded.defaultIde).toBe("code-insiders");
+    expect(reloaded.defaultOpenCommand).toBe("code-insiders");
     expect(reloaded.pinned).toEqual(["/test/project"]);
   });
 });

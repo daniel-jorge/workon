@@ -43,17 +43,13 @@ export function registerConfigCommand(program: Command): void {
     });
 
   config
-    .command("set-ide <ide>")
-    .description("Set the default IDE (code or code-insiders)")
-    .action((ide: string) => {
+    .command("set-ide <command>")
+    .description("Set the default open command")
+    .action((command: string) => {
       const cfg = loadConfig();
-      if (ide !== "code" && ide !== "code-insiders") {
-        console.error('IDE must be "code" or "code-insiders"');
-        process.exit(1);
-      }
-      cfg.defaultIde = ide as "code" | "code-insiders";
+      cfg.defaultOpenCommand = command;
       saveConfig(cfg);
-      console.log(`Default IDE set to: ${ide}`);
+      console.log(`Default open command set to: ${command}`);
     });
 
   config

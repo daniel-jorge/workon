@@ -1,8 +1,8 @@
-import { spawn } from "node:child_process";
+import { execa } from "execa";
 import type { Project } from "@/types.js";
 
-export function openProject(project: Project, overrideIde?: string): void {
-  const ide = overrideIde ?? project.ide;
+export async function openProject(project: Project, overrideOpenCommand?: string): Promise<void> {
+  const openCommand = overrideOpenCommand ?? project.openCommand;
   const args = project.profile ? ["--profile", project.profile, project.path] : [project.path];
-  spawn(ide, args, { detached: true, stdio: "ignore" }).unref();
+  await execa(openCommand, args, { detached: true, stdio: "ignore" });
 }

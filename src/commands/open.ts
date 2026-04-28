@@ -11,5 +11,5 @@ export async function openCommand(query: string): Promise<void> {
     console.error(`No project found matching '${query}'`);
     process.exit(1);
   }
-  openProject(results[0]);
+  await openProject(results[0]);
 }

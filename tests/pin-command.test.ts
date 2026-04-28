@@ -218,7 +218,8 @@ describe("pin state transitions", () => {
     let config = {
       roots: [],
       maxDepth: 3,
-      defaultIde: "code" as const,
+      defaultOpenCommand: "code" as const,
+      openCommands: [{ name: "Code", command: "code" }],
       defaultProfile: "",
       ignore: [],
       pinned: [],
@@ -246,7 +247,8 @@ describe("pin state transitions", () => {
     let config = {
       roots: [],
       maxDepth: 3,
-      defaultIde: "code" as const,
+      defaultOpenCommand: "code" as const,
+      openCommands: [{ name: "Code", command: "code" }],
       defaultProfile: "",
       ignore: [],
       pinned: [],

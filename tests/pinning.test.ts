@@ -24,7 +24,8 @@ describe("pinning utilities - core functionality", () => {
     const config = {
       roots: [],
       maxDepth: 3,
-      defaultIde: "code" as const,
+      defaultOpenCommand: "code" as const,
+      openCommands: [{ name: "Code", command: "code" }],
       defaultProfile: "",
       ignore: [],
       pinned: ["/home/user/project1", "/home/user/project2"],
@@ -40,7 +41,8 @@ describe("pinning utilities - core functionality", () => {
     const config = {
       roots: [],
       maxDepth: 3,
-      defaultIde: "code" as const,
+      defaultOpenCommand: "code" as const,
+      openCommands: [{ name: "Code", command: "code" }],
       defaultProfile: "",
       ignore: [],
       pinned: ["/home/user/project1"],
@@ -86,7 +88,8 @@ describe("pinning utilities - core functionality", () => {
     const config = {
       roots: [],
       maxDepth: 3,
-      defaultIde: "code" as const,
+      defaultOpenCommand: "code" as const,
+      openCommands: [{ name: "Code", command: "code" }],
       defaultProfile: "",
       ignore: [],
       pinned: ["/home/user/project1", "/home/user/project2", "/home/user/project3"],
@@ -103,7 +106,8 @@ describe("pinning utilities - core functionality", () => {
     const config = {
       roots: [],
       maxDepth: 3,
-      defaultIde: "code" as const,
+      defaultOpenCommand: "code" as const,
+      openCommands: [{ name: "Code", command: "code" }],
       defaultProfile: "",
       ignore: [],
       pinned: [],
@@ -156,7 +160,8 @@ describe("pinning persistence", () => {
       JSON.stringify({
         roots: [],
         maxDepth: 3,
-        defaultIde: "code",
+        defaultOpenCommand: "code",
+        openCommands: [{ name: "Code", command: "code" }],
         defaultProfile: "",
         ignore: [],
         pinned: duplicatePins,
@@ -218,7 +223,8 @@ describe("edge cases and error handling", () => {
     const config = {
       roots: [],
       maxDepth: 3,
-      defaultIde: "code" as const,
+      defaultOpenCommand: "code" as const,
+      openCommands: [{ name: "Code", command: "code" }],
       defaultProfile: "",
       ignore: [],
       pinned: [],
@@ -233,7 +239,8 @@ describe("edge cases and error handling", () => {
     const config = {
       roots: [],
       maxDepth: 3,
-      defaultIde: "code" as const,
+      defaultOpenCommand: "code" as const,
+      openCommands: [{ name: "Code", command: "code" }],
       defaultProfile: "",
       ignore: [],
       pinned: ["/home/user/project1"],

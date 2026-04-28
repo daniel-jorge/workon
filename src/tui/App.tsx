@@ -3,7 +3,7 @@ import { Box, Text, useInput, useStdout } from "ink";
 import { SearchBar } from "@/tui/SearchBar.js";
 import { ProjectList } from "@/tui/ProjectList.js";
 import { HintBar } from "@/tui/HintBar.js";
-import { LaunchMenu } from "@/tui/LaunchMenu.js";
+import { OpenMenu } from "@/tui/OpenMenu.js";
 import { ContextMenu } from "@/tui/ContextMenu.js";
 import { Spinner } from "@/tui/Spinner.js";
 import { fuzzySearch } from "@/core/search.js";
@@ -23,7 +23,7 @@ export function App({ config }: Props) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [showLaunchMenu, setShowLaunchMenu] = useState(false);
+  const [showOpenMenu, setShowOpenMenu] = useState(false);
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [currentConfig, setCurrentConfig] = useState(config);
   const { stdout } = useStdout();
@@ -53,8 +53,8 @@ export function App({ config }: Props) {
       process.exit(0);
     }
 
-    // Don't process keyboard input while Launch menu is open
-    if (showLaunchMenu) {
+    // Don't process keyboard input while Open menu is open
+    if (showOpenMenu) {
       return;
     }
 
@@ -86,10 +86,10 @@ export function App({ config }: Props) {
         setShowContextMenu(true);
       }
     } else if (key.return && selectedIndex >= 0) {
-      // Open Launch Menu on Enter
+      // Open Open Menu on Enter
       const project = filtered[selectedIndex];
       if (project) {
-        setShowLaunchMenu(true);
+        setShowOpenMenu(true);
       }
     }
   });
@@ -100,7 +100,7 @@ export function App({ config }: Props) {
         <Spinner status="Scanning for projects…" />
       ) : (
         <>
-          {!showLaunchMenu && (
+          {!showOpenMenu && (
             <Box
               borderStyle="bold"
               borderLeft={false}
@@ -112,7 +112,7 @@ export function App({ config }: Props) {
               <Text dimColor>{`${filtered.length} / ${projects.length} projects`}</Text>
             </Box>
           )}
-          {!showLaunchMenu && (
+          {!showOpenMenu && (
             <>
               <ProjectList
                 projects={filtered}
@@ -125,19 +125,20 @@ export function App({ config }: Props) {
               </Box>
             </>
           )}
-          {showLaunchMenu && (
+          {showOpenMenu && (
             <Box flexDirection="column" flexGrow={1} justifyContent="center" alignItems="center">
               {filtered[selectedIndex] && (
-                <LaunchMenu
-                  visible={showLaunchMenu}
+                <OpenMenu
+                  visible={showOpenMenu}
                   projectName={filtered[selectedIndex].name}
-                  currentIde={filtered[selectedIndex].ide}
+                  currentOpenCommand={filtered[selectedIndex].openCommand}
+                  openCommands={currentConfig.openCommands}
                   isPinned={isPinned(filtered[selectedIndex].path, currentConfig)}
                   isMissing={filtered[selectedIndex].missing === true}
-                  onSelectIde={(ide) => {
+                  onSelectOpenCommand={async (command) => {
                     const project = filtered[selectedIndex];
                     if (project) {
-                      openProject(project, ide);
+                      await openProject(project, command);
                       process.exit(0);
                     }
                   }}
@@ -147,10 +148,10 @@ export function App({ config }: Props) {
                       const updated = togglePin(project.path, currentConfig);
                       await saveConfig(updated);
                       setCurrentConfig(updated);
-                      setShowLaunchMenu(false);
+                      setShowOpenMenu(false);
                     }
                   }}
-                  onCancel={() => setShowLaunchMenu(false)}
+                  onCancel={() => setShowOpenMenu(false)}
                 />
               )}
             </Box>

@@ -34,11 +34,21 @@ export function mergeProject(
   devProject?: DevProject | null,
 ): Project {
   const type = detectProjectType(dir) ?? "generic";
+
+  // Fallback chain: per-project -> global default -> first available command
+  let openCommand = devProject?.openCommand ?? globalConfig.defaultOpenCommand;
+  if (!openCommand && globalConfig.openCommands.length > 0) {
+    openCommand = globalConfig.openCommands[0].command;
+  }
+  if (!openCommand) {
+    openCommand = "code"; // final fallback
+  }
+
   return {
     name: devProject?.name ?? basename(dir),
     path: dir,
     type,
-    ide: devProject?.ide ?? globalConfig.defaultIde,
+    openCommand,
     profile: devProject?.profile ?? globalConfig.defaultProfile,
     description: devProject?.description ?? "",
     tags: devProject?.tags ?? [],

@@ -21,7 +21,11 @@ describe("loadConfig", () => {
     const config = loadConfig();
     expect(config.roots).toEqual([]);
     expect(config.maxDepth).toBe(3);
-    expect(config.defaultIde).toBe("code");
+    expect(config.defaultOpenCommand).toBe("code");
+    expect(config.openCommands).toEqual([
+      { name: "Visual Studio Code", command: "code" },
+      { name: "VS Code Insiders", command: "code-insiders" },
+    ]);
     expect(config.defaultProfile).toBe("");
     expect(config.ignore).toEqual([
       "**/node_modules/**",
@@ -49,14 +53,36 @@ describe("loadConfig", () => {
     const { loadConfig, saveConfig } = await import("../src/core/config.js");
     const config = loadConfig();
     config.roots = ["/a", "/b"];
-    config.defaultIde = "code-insiders";
+    config.defaultOpenCommand = "code-insiders";
+    config.openCommands = [
+      { name: "Custom", command: "custom-editor" },
+      { name: "Code Insiders", command: "code-insiders" },
+    ];
     config.defaultProfile = "personal";
     saveConfig(config);
 
     const reloaded = loadConfig();
     expect(reloaded.roots).toEqual(["/a", "/b"]);
-    expect(reloaded.defaultIde).toBe("code-insiders");
+    expect(reloaded.defaultOpenCommand).toBe("code-insiders");
     expect(reloaded.defaultProfile).toBe("personal");
+  });
+
+  it("migrates legacy defaultIde to defaultOpenCommand", async () => {
+    const { loadConfig } = await import("@/core/config.js");
+    const configPath = join(tmpDir, ".workonrc.json");
+    // Write legacy config with "defaultIde"
+    const legacyConfig = {
+      roots: [],
+      maxDepth: 3,
+      defaultIde: "code-insiders",
+      defaultProfile: "",
+      ignore: ["**/node_modules/**"],
+      pinned: [],
+    };
+    require("node:fs").writeFileSync(configPath, JSON.stringify(legacyConfig));
+
+    const config = loadConfig();
+    expect(config.defaultOpenCommand).toBe("code-insiders");
   });
 });
 
@@ -80,10 +106,12 @@ describe("saveConfig", () => {
     expect(() => saveConfig(config)).toThrow();
   });
 
-  it("rejects invalid ide via Zod validation", async () => {
+  it("validates openCommands structure", async () => {
     const { loadConfig, saveConfig } = await import("../src/core/config.js");
     const config = loadConfig();
-    (config as Record<string, unknown>)["defaultIde"] = "vim";
+    (config as Record<string, unknown>)["openCommands"] = [
+      { name: "Valid" }, // missing 'command' field
+    ];
     expect(() => saveConfig(config)).toThrow();
   });
 });

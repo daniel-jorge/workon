@@ -36,7 +36,7 @@ async function openPinned(name: string): Promise<void> {
   }
 
   const project = results[0];
-  openProject(project);
+  await openProject(project);
   process.exit(0);
 }
 

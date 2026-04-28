@@ -12,7 +12,11 @@ const SCAN_ROOT = join(__dirname, "fixtures", "scan-root");
 const baseConfig: GlobalConfig = {
   roots: [SCAN_ROOT],
   maxDepth: 3,
-  defaultIde: "code",
+  defaultOpenCommand: "code",
+  openCommands: [
+    { name: "Visual Studio Code", command: "code" },
+    { name: "VS Code Insiders", command: "code-insiders" },
+  ],
   defaultProfile: "",
   ignore: ["node_modules", "dist", ".git"],
   pinned: [],
@@ -44,7 +48,7 @@ describe("scanProjects", () => {
     const projects = await scanProjects(baseConfig);
     const delta = projects.find((p) => p.name === "Delta Project");
     expect(delta).toBeDefined();
-    expect(delta!.ide).toBe("code-insiders");
+    expect(delta!.openCommand).toBe("code-insiders");
     expect(delta!.profile).toBe("work");
     expect(delta!.hasDevProject).toBe(true);
     expect(delta!.tags).toContain("scan-test");

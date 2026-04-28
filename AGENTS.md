@@ -27,6 +27,16 @@ tests/                  # Vitest tests, mirrors src/ structure
 
 Key files: [docs/workon.tech.md](docs/workon.tech.md) has the full technical spec.
 
+## Main Libraries
+
+- **commander**: CLI framework for command parsing and help text
+- **execa**: Process execution for launching IDEs and running external commands
+- **fast-glob**: Fast file globbing for project discovery
+- **fuse.js**: Fuzzy search library for filtering projects
+- **ink**: Terminal UI framework for interactive components (pairs with React)
+- **react**: Component library for building TUI with Ink
+- **zod**: TypeScript-first schema validation for config files and project data
+
 ## Conventions
 
 - **Package manager**: pnpm only — never npm or yarn

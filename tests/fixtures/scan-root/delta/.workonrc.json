@@ -1,7 +1,7 @@
 {
   "name": "Delta Project",
   "description": "Scanner test with devproject",
-  "ide": "code-insiders",
+  "openCommand": "code-insiders",
   "profile": "work",
   "tags": ["scan-test"]
 }

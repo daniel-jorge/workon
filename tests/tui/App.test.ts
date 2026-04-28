@@ -13,7 +13,8 @@ vi.mock("@/core/scanner.js", () => ({
 
 // Mock other tui components to render simple identifiable text
 vi.mock("@/tui/SearchBar.js", () => ({
-  SearchBar: ({ query }: { query: string }) => React.createElement("div", null, `SearchBar:${query}`),
+  SearchBar: ({ query }: { query: string }) =>
+    React.createElement("div", null, `SearchBar:${query}`),
 }));
 
 vi.mock("@/tui/ProjectList.js", () => ({
