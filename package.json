@@ -1,6 +1,6 @@
 {
   "name": "@crize2013/workon",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "Find and open your projects quickly",
   "bin": {
     "workon": "./dist/cli.mjs"
