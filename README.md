@@ -1,14 +1,8 @@
 # 🚀 workon
 
-Find and open your projects quickly with this CLI tool.
+Find and open your projects instantly from the terminal.
 
-## 🤔 What problem does `workon` solve?
-
-Juggling multiple projects? Finding the right one shouldn't be a headache. `workon` helps you discover, remember, and launch your projects in seconds.
-
-## ⚙️ How does it work?
-
-Workon is a command-line tool that helps you find and open your projects quickly. It automatically discovers projects on your disk, remembers your preferred IDE and VS Code profile per project, and provides an interactive terminal UI to search and launch them instantly.
+**What it does:** Scans your disk for projects, lets you search them by name, and opens them with your preferred editor (VS Code, Cursor, Zed, etc.). Pin your favorites for quick access.
 
 ## 📦 Installation
 
@@ -16,298 +10,102 @@ Workon is a command-line tool that helps you find and open your projects quickly
 npm install -g @crize2013/workon
 ```
 
-## 🎯 Quick Start
+## 🎯 Getting Started
 
-### 1. Configure Your Workspace Folders
-
-Before using `workon`, tell it where to find your projects:
+**1. Add your project folders:**
 
 ```bash
 workon config add ~/Developer
-workon config add ~/workspace
 ```
 
-You can add as many root folders as you need. Each folder will be scanned recursively to discover projects.
-
-### 2. Launch the Interactive UI
-
-Simply run:
+**2. Launch the interactive search:**
 
 ```bash
 workon
 ```
 
-This opens an interactive terminal UI where you can:
+- Type to search (fuzzy matching)
+- Press `Enter` to open the menu (choose editor or pin/unpin)
+- Press `Escape` to exit
 
-- **Search** by typing the project name (live fuzzy matching)
-- **Navigate** with arrow keys
-- **Open** by pressing Enter (opens Launch Menu with IDE selection and pin toggle)
-- **Pin/Unpin** projects from the Launch Menu for quick access
-- **Exit** by pressing Escape
-
-### 3. Optional: Configure Per-Project Settings
-
-Inside any project folder, create a `.workonrc.json` file:
-
-```bash
-cd ~/Developer/my-project
-workon init
-```
-
-Then edit `.workonrc.json` to customize:
-
-```json
-{
-  "ide": "code",
-  "profile": "work",
-  "name": "My Project",
-  "description": "A description of this project",
-  "tags": ["backend", "nodejs"]
-}
-```
+That's it! You can now search and open projects instantly.
 
 ## 💻 Commands
 
-```shell
-❯ workon --help
-Usage: workon [options] [command]
-
-Find and open your projects quickly
-
-Options:
-  -V, --version  output the version number
-  -h, --help     display help for command
-
-Commands:
-  open <query>   Open a project by name
-  list           List all discovered projects
-  init           Create a .workonrc.json file in the current directory
-  config         Manage configuration
-  pin            Manage pinned projects
+```bash
+workon              # Interactive search and open (main command)
+workon open <name>  # Open a project directly (no TUI)
+workon list         # List all projects
+workon init         # Create .workonrc.json in current directory
+workon pin list     # Show pinned projects
+workon pin open <name>     # Open a pinned project
+workon config show  # Show your configuration
+workon config add <path>   # Add a folder to scan
 ```
 
-### `workon` (default)
-
-Opens the interactive TUI to browse and search all discovered projects.
+**Examples:**
 
 ```bash
-workon
-```
-
-**Features:**
-
-- Live fuzzy search as you type
-- Pinned projects appear first (marked with 📌) for quick access
-- Alphabetically sorted project list
-- Shows project type (Node.js, Rust, Python, Go, Java, .NET)
-- Shows configured IDE and profile
-- Displays count of matching projects vs. total
-- Launch Menu with IDE selection and pin toggle on Enter
-
-### `workon open <query>`
-
-Open a project directly by name without the TUI.
-
-```bash
+workon config add ~/projects
 workon open billing
-workon open "my project"
-```
-
-The first project matching the query is opened immediately.
-
-### `workon list`
-
-Print all discovered projects to the terminal as plain text.
-
-```bash
-workon list
-```
-
-Useful for scripting or quick reference without the interactive UI.
-
-### `workon init`
-
-Create a `.workonrc.json` file in the current directory with default values.
-
-```bash
-cd ~/Developer/my-project
-workon init
-```
-
-This initializes a configuration file that you can edit to customize IDE, profile, name, and tags for that specific project.
-
-### `workon config`
-
-Manage global configuration stored in `~/.workonrc.json`.
-
-```shell
-❯ workon config --help
-Usage: workon config [options] [command]
-
-Manage configuration
-
-Options:
-  -h, --help          display help for command
-
-Commands:
-  show                Print current configuration
-  add-root <path>     Add a root folder to scan
-  remove-root <path>  Remove a root folder
-  set-ide <ide>       Set the default IDE (code or code-insiders)
-  set-profile <name>  Set the default VS Code profile
-  set-depth <number>  Set the maximum scan depth
-  help [command]      display help for command
-```
-
-Examples:
-
-```bash
-# Add a root folder to scan
-workon config add ~/new-workspace
-
-# Remove a root folder
-workon config remove ~/old-workspace
-
-# Set the default IDE (code or code-insiders)
-workon config set-ide code-insiders
-
-# Set the default VS Code profile
-workon config set-profile work
-
-# Set maximum scan depth (how many folder levels deep to look)
-workon config set-depth 4
-
-# View current configuration
-workon config show
-```
-
-### `workon pin`
-
-Manage your pinned projects for quick access.
-
-#### `workon pin list`
-
-List all pinned projects in order.
-
-```bash
-workon pin list
-```
-
-Output example:
-
-```
-[📌] my-app — /Users/user/projects/my-app
-[📌] legacy-service — /Users/user/projects/legacy-service
-```
-
-#### `workon pin open <project-name>`
-
-Open a pinned project directly by name (supports fuzzy matching).
-
-```bash
-workon pin open my-app
-workon pin open "legacy-service"
-```
-
-The project launches with the configured IDE.
-
-#### `workon pin toggle <project-name>`
-
-Toggle the pin status of a project (add to or remove from pinned projects).
-
-```bash
 workon pin toggle my-app
 ```
 
-When adding a project to pins:
+## ⚙️ Configuration
 
+By default, workon creates `~/.workonrc.json` with sensible defaults. You can customize it:
+
+```bash
+workon config show                    # View your config
+workon config add ~/Developer         # Add a scan folder
+workon config set-open-command cursor # Change default editor
+workon config set-depth 5             # Change scan depth
 ```
-✓ Pinned my-app
-```
 
-When removing from pins:
+**Config file options:**
 
-```
-✓ Unpinned my-app
-```
+- `roots` — Folders to scan for projects
+- `maxDepth` — How many levels deep to scan (default: 3)
+- `defaultOpenCommand` — Default editor to use (default: `code`)
+- `openCommands` — Available open options (add custom editors here)
+- `defaultProfile` — VS Code profile to use
+- `pinned` — Your pinned projects
 
-## ⚡ Configuration
+### Per-Project Config
 
-### Global Configuration (`~/.workonrc.json`)
-
-Created automatically on first use. Edit directly or use `workon config` commands.
+Create `.workonrc.json` in any project folder to customize just that project:
 
 ```json
 {
-  "rootFolders": ["~/Developer", "~/workspace"],
-  "maxScanDepth": 3,
-  "defaultIde": "code",
-  "defaultProfile": "default",
-  "ignorePatterns": ["node_modules", "dist", ".git", ".venv"],
-  "pinned": ["/Users/user/projects/my-app", "/Users/user/projects/legacy-service"]
-}
-```
-
-**Options:**
-
-- `rootFolders` — Directories to scan for projects
-- `maxScanDepth` — How many folder levels deep to scan (default: 3)
-- `defaultIde` — Default IDE to use (`code` or `code-insiders`)
-- `defaultProfile` — Default VS Code profile name
-- `ignorePatterns` — Folders/files to skip during scanning
-- `pinned` — Array of absolute paths to pinned projects (for quick access)
-
-### Per-Project Configuration (`.workonrc.json`)
-
-Add to any project root folder to override defaults:
-
-```json
-{
-  "ide": "code-insiders",
+  "openCommand": "code-insiders",
   "profile": "personal",
-  "name": "My Special Project",
-  "description": "A custom description",
+  "name": "My Project",
+  "description": "Optional description",
   "tags": ["important", "client-work"]
 }
 ```
 
-**Options:**
+Or run `workon init` in the project folder to generate this file.
 
-- `ide` — IDE to use for this project (overrides global default)
-- `profile` — VS Code profile to use (overrides global default)
-- `name` — Display name shown in the TUI
-- `description` — Short description of the project
-- `tags` — Searchable tags
+## 🔍 What Projects Are Detected?
 
-## 🔍 Project Discovery
+Workon finds projects by looking for marker files:
 
-`workon` automatically detects projects by looking for marker files:
+| Marker File        | Type    |
+| ------------------ | ------- |
+| `package.json`     | Node.js |
+| `go.mod`           | Go      |
+| `Cargo.toml`       | Rust    |
+| `requirements.txt` | Python  |
+| `pom.xml`          | Java    |
+| `.csproj`          | .NET    |
+| `.git`             | Generic |
 
-| Marker File        | Project Type |
-| ------------------ | ------------ |
-| `package.json`     | Node.js      |
-| `Cargo.toml`       | Rust         |
-| `go.mod`           | Go           |
-| `requirements.txt` | Python       |
-| `pom.xml`          | Java         |
-| `.csproj`          | .NET         |
-| `.git`             | Generic      |
+## 💡 Tips
 
-Folders matching ignore patterns (like `node_modules`, `dist`, `.git`) are skipped during scanning.
+**Fuzzy search:** Type partial names — `bill` finds `billing`, `api-ser` finds `api-server`
 
-## 💡 Tips & Tricks
-
-### Search More Efficiently
-
-The search is fuzzy, so you can type partial names:
-
-- Type `bill` to find `billing` or `billpay`
-- Type `api-ser` to find `api-server`
-- Type `py` to find Python projects
-
-### Configure Multiple Workspaces
-
-Add all your workspace folders:
+**Multiple workspaces:** Add all your folders:
 
 ```bash
 workon config add ~/Developer
@@ -315,99 +113,64 @@ workon config add ~/personal
 workon config add ~/clients
 ```
 
-### Pin Your Favorite Projects
-
-Pin frequently-used projects for quick access at the top of the project list:
+**Pin favorites:** Press `P` in the TUI or run:
 
 ```bash
-# In the interactive TUI: press Enter on a project, then navigate to "Pin Project"
-# Or from the CLI:
 workon pin toggle my-app
-
-# List all pinned projects
-workon pin list
-
-# Open a pinned project directly
-workon pin open my-app
 ```
 
-Pinned projects always appear first in the project list (marked with 📌) and persist across sessions.
-
-### Organize Projects with Tags
-
-Use `.workonrc.json` to tag projects for better organization:
+**Custom editors:** Add to your config:
 
 ```json
 {
-  "tags": ["client:acme", "backend"]
+  "openCommands": [
+    { "name": "Cursor", "command": "cursor" },
+    { "name": "Zed", "command": "zed" },
+    { "name": "Neovim", "command": "nvim" }
+  ]
 }
 ```
 
-Then search by tag in the TUI.
-
-### Use Different IDE Profiles
-
-Set up VS Code profiles for different contexts (Work, Personal, etc.) and configure projects to use them:
+**Tags:** Organize projects with tags in `.workonrc.json`:
 
 ```json
 {
-  "profile": "work",
-  "ide": "code"
+  "tags": ["backend", "client:acme"]
 }
 ```
 
 ## 🔧 Troubleshooting
 
-**Projects not showing up?**
+**Projects not showing?**
 
-- Run `workon config show` to check configured folders
-- Verify folders exist and contain projects with marker files
-- Check that `maxScanDepth` is high enough
-- Try `workon config set-depth 5` to increase scan depth
+- Run `workon config show` to verify your folders
+- Increase scan depth: `workon config set-depth 5`
+- Check for marker files (package.json, Cargo.toml, etc.)
 
-**Wrong IDE opening?**
+**Wrong editor opening?**
 
-- Check `~/.workonrc.json` for `defaultIde`
-- Check project's `.workonrc.json` (if it has one)
-- Install `code-insiders` if using that option
+- Check `workon config show` for `defaultOpenCommand`
+- Verify the command is installed: `which code` or `which cursor`
+- Use `workon config set-open-command cursor` to change
 
-**Performance issues?**
+**Slow scanning?**
 
-- Reduce `maxScanDepth` in config
-- Add more patterns to `ignorePatterns`
-- Make sure `node_modules` and similar folders are ignored
+- Reduce `maxDepth`: `workon config set-depth 2`
+- Remove folders you don't need: `workon config remove ~/old-folder`
 
-## ⌨️ Keyboard Shortcuts (Interactive TUI)
+## ⌨️ Keyboard Shortcuts
 
-### Project List
+| Key      | Action                                 |
+| -------- | -------------------------------------- |
+| `↑` `↓`  | Navigate list                          |
+| `Enter`  | Open menu (choose editor or pin/unpin) |
+| `Escape` | Clear search, then exit                |
+| Type     | Search (live filter)                   |
 
-| Key       | Action                         |
-| --------- | ------------------------------ |
-| `↑` / `↓` | Navigate project list          |
-| `Enter`   | Open Project Menu              |
-| `Escape`  | Clear search, then exit        |
-| Type      | Filter projects (fuzzy search) |
-
-### Launch Menu
-
-| Key       | Action                                   |
-| --------- | ---------------------------------------- |
-| `↑` / `↓` | Navigate between options                 |
-| `1–X`     | Quick-select IDE                         |
-| `P`       | Toggle pin/unpin project                 |
-| `Enter`   | Confirm selection (launch or toggle pin) |
-| `Escape`  | Cancel and return to list                |
-
-## 📌 Version
-
-Check your version:
+## 📌 Help & Updates
 
 ```bash
-workon --version
-```
-
-Update to the latest:
-
-```bash
-npm install -g @crize2013/workon
+workon --version   # Check version
+workon --help      # Show all commands
+npm install -g @crize2013/workon@latest  # Update to latest
 ```
