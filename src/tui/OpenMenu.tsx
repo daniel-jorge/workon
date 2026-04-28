@@ -28,7 +28,10 @@ export function OpenMenu({
   onCancel,
 }: OpenMenuProps) {
   const [selectedCommandIndex, setSelectedCommandIndex] = useState(
-    openCommands.findIndex((cmd) => cmd.command === currentOpenCommand) ?? 0,
+    Math.max(
+      0,
+      openCommands.findIndex((cmd) => cmd.command === currentOpenCommand),
+    ),
   );
   const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem>(isMissing ? "pin" : "command");
 
