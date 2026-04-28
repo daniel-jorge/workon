@@ -19,7 +19,7 @@ export function initCommand(): void {
   const devProject = {
     name: guessedMetadata.name ?? "",
     description: guessedMetadata.description ?? "",
-    ide: config.defaultIde,
+    openCommand: config.defaultOpenCommand,
     profile: config.defaultProfile,
     tags: [] as string[],
   };
