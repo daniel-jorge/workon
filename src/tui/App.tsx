@@ -139,7 +139,7 @@ export function App({ config }: Props) {
                     const project = filtered[selectedIndex];
                     if (project) {
                       await openProject(project, command);
-                      process.exit(0);
+                      setShowOpenMenu(false);
                     }
                   }}
                   onTogglePin={async () => {
