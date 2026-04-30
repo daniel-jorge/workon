@@ -2,7 +2,7 @@
 
 Find and open your projects instantly from the terminal.
 
-**What it does:** Scans your disk for projects, lets you search them by name, and opens them with your preferred editor (VS Code, Cursor, Zed, etc.). Pin your favorites for quick access.
+**What it does:** Scans your disk for projects, lets you search them by name, and opens them with your preferred editor (VS Code, Cursor, Zed, Neovim, etc.). Pin your favorites for quick access.
 
 ## 📦 Installation
 
@@ -15,7 +15,7 @@ npm install -g @crize2013/workon
 **1. Add your project folders:**
 
 ```bash
-workon config add ~/Developer
+workon config add-root ~/Developer
 ```
 
 **2. Launch the interactive search:**
@@ -33,20 +33,22 @@ That's it! You can now search and open projects instantly.
 ## 💻 Commands
 
 ```bash
-workon              # Interactive search and open (main command)
-workon open <name>  # Open a project directly (no TUI)
-workon list         # List all projects
-workon init         # Create .workonrc.json in current directory
-workon pin list     # Show pinned projects
-workon pin open <name>     # Open a pinned project
-workon config show  # Show your configuration
-workon config add <path>   # Add a folder to scan
+workon                         # Interactive search and open (main command)
+workon open <name>             # Open a project directly (no TUI)
+workon list                    # List all discovered projects
+workon init                    # Create .workonrc.json in current directory
+workon pin list                # Show pinned projects
+workon pin open <name>         # Open a pinned project
+workon pin toggle <name>       # Pin or unpin a project
+workon config show             # Show your configuration
+workon config add-root <path>  # Add a folder to scan
+workon config remove-root <path>  # Remove a scan folder
 ```
 
 **Examples:**
 
 ```bash
-workon config add ~/projects
+workon config add-root ~/projects
 workon open billing
 workon pin toggle my-app
 ```
@@ -56,20 +58,51 @@ workon pin toggle my-app
 By default, workon creates `~/.workonrc.json` with sensible defaults. You can customize it:
 
 ```bash
-workon config show                    # View your config
-workon config add ~/Developer         # Add a scan folder
-workon config set-open-command cursor # Change default editor
-workon config set-depth 5             # Change scan depth
+workon config show                          # View your config
+workon config add-root ~/Developer          # Add a scan folder
+workon config remove-root ~/Developer       # Remove a scan folder
+workon config set-default-command cursor    # Change default editor
+workon config set-depth 5                   # Change scan depth
+workon config set-profile personal          # Set default VS Code profile
 ```
 
 **Config file options:**
 
 - `roots` — Folders to scan for projects
 - `maxDepth` — How many levels deep to scan (default: 3)
-- `defaultOpenCommand` — Default editor to use (default: `code`)
-- `openCommands` — Available open options (add custom editors here)
-- `defaultProfile` — VS Code profile to use
-- `pinned` — Your pinned projects
+- `defaultOpenCommand` — Default editor executable (default: `code`)
+- `openCommands` — Available open commands (add custom editors here)
+- `defaultProfile` — VS Code profile to use by default
+- `pinned` — Your pinned project paths
+- `ignore` — Glob patterns to skip during scanning
+
+### Managing Open Commands
+
+```bash
+# Add an editor
+workon config add-command --name "Cursor" --command "cursor"
+
+# Add a terminal editor (opens in current TTY)
+workon config add-command --name "Neovim" --command "nvim" --terminal
+
+# Remove an editor by executable
+workon config remove-command cursor
+
+# List all configured editors
+workon config list-commands
+
+# Set the default editor
+workon config set-default-command nvim
+```
+
+`list-commands` output example:
+
+```
+Display Name  Executable  Terminal  Default
+Neovim        nvim        Y         Y
+Cursor        cursor      N         N
+VS Code       code        N         N
+```
 
 ### Per-Project Config
 
@@ -108,9 +141,9 @@ Workon finds projects by looking for marker files:
 **Multiple workspaces:** Add all your folders:
 
 ```bash
-workon config add ~/Developer
-workon config add ~/personal
-workon config add ~/clients
+workon config add-root ~/Developer
+workon config add-root ~/personal
+workon config add-root ~/clients
 ```
 
 **Pin favorites:** Press `P` in the TUI or run:
@@ -119,16 +152,17 @@ workon config add ~/clients
 workon pin toggle my-app
 ```
 
-**Custom editors:** Add to your config:
+**Terminal editors (Neovim, Vim, etc.):** Register with `--terminal` so workon attaches your TTY correctly instead of launching in the background:
 
-```json
-{
-  "openCommands": [
-    { "name": "Cursor", "command": "cursor" },
-    { "name": "Zed", "command": "zed" },
-    { "name": "Neovim", "command": "nvim" }
-  ]
-}
+```bash
+workon config add-command --name "Neovim" --command "nvim" --terminal
+```
+
+**Custom editors:**
+
+```bash
+workon config add-command --name "Cursor" --command "cursor"
+workon config add-command --name "Zed" --command "zed"
 ```
 
 **Tags:** Organize projects with tags in `.workonrc.json`:
@@ -137,6 +171,12 @@ workon pin toggle my-app
 {
   "tags": ["backend", "client:acme"]
 }
+```
+
+**Clean up stale pins:**
+
+```bash
+workon config cleanup-pins
 ```
 
 ## 🔧 Troubleshooting
@@ -149,14 +189,19 @@ workon pin toggle my-app
 
 **Wrong editor opening?**
 
-- Check `workon config show` for `defaultOpenCommand`
-- Verify the command is installed: `which code` or `which cursor`
-- Use `workon config set-open-command cursor` to change
+- Run `workon config list-commands` to see configured editors
+- Run `workon config set-default-command cursor` to change the default
+- Verify the command is in `$PATH`: `which nvim`
+
+**Terminal editor gets stuck or shows garbled output?**
+
+- Make sure the command is registered with `--terminal`:
+  `workon config add-command --name "Neovim" --command "nvim" --terminal`
 
 **Slow scanning?**
 
 - Reduce `maxDepth`: `workon config set-depth 2`
-- Remove folders you don't need: `workon config remove ~/old-folder`
+- Remove folders you don't need: `workon config remove-root ~/old-folder`
 
 ## ⌨️ Keyboard Shortcuts
 
