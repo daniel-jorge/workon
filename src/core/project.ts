@@ -44,11 +44,15 @@ export function mergeProject(
     openCommand = "code"; // final fallback
   }
 
+  const openCommandConfig = globalConfig.openCommands.find((c) => c.command === openCommand);
+  const terminalApp = openCommandConfig?.terminal ?? false;
+
   return {
     name: devProject?.name ?? basename(dir),
     path: dir,
     type,
     openCommand,
+    terminalApp,
     profile: devProject?.profile ?? globalConfig.defaultProfile,
     description: devProject?.description ?? "",
     tags: devProject?.tags ?? [],

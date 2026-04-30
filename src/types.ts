@@ -3,6 +3,7 @@ export type ProjectType = "nodejs" | "rust" | "go" | "python" | "java" | "dotnet
 export interface OpenCommand {
   name: string;
   command: string;
+  terminal?: boolean;
 }
 
 export interface Project {
@@ -10,6 +11,7 @@ export interface Project {
   path: string;
   type: ProjectType;
   openCommand: string;
+  terminalApp: boolean;
   profile: string;
   description: string;
   tags: string[];
