@@ -9,6 +9,15 @@ import {
   isExecutableInPath,
 } from "@/core/config.js";
 import { validatePinnedPaths } from "@/core/pinning.js";
+import { validateAndNormalizeSSHUri } from "@/core/remote-uri.js";
+import {
+  loadRemoteCache,
+  saveRemoteCache,
+  addRemoteRootToConfig,
+  removeRemoteRootFromConfig,
+  listRemoteRootStatuses,
+} from "@/core/remote-cache.js";
+import { scanRemoteRoot } from "@/core/remote-scan.js";
 
 export function registerConfigCommand(program: Command): void {
   const config = program.command("config").description("Manage configuration");
@@ -200,5 +209,125 @@ export function registerConfigCommand(program: Command): void {
       cfg.pinned = valid;
       saveConfig(cfg);
       console.log(`✓ Removed ${invalid.length} missing pin(s)`);
+    });
+
+  // ─── Remote Root Subcommands (FR2) ──────────────────────────────────────────
+
+  config
+    .command("add-remote-root <uri>")
+    .description("Add a remote SSH root folder and scan it")
+    .addHelpText(
+      "after",
+      "\nExample:\n  workon config add-remote-root ssh://alice@devbox.corp/home/alice/projects",
+    )
+    .action(async (uri: string) => {
+      let normalizedUri: string;
+      try {
+        normalizedUri = validateAndNormalizeSSHUri(uri);
+      } catch (err) {
+        console.error((err as Error).message);
+        process.exit(1);
+      }
+
+      const cfg = loadConfig();
+
+      // AC12 — duplicate check
+      if (cfg.remoteRoots.includes(normalizedUri)) {
+        console.log(`Remote root ${normalizedUri} is already configured.`);
+        process.exit(0);
+      }
+
+      console.log(`Scanning ${normalizedUri}...`);
+      const scanResult = await scanRemoteRoot(normalizedUri, cfg);
+
+      if (scanResult.error) {
+        const { parseSSHUri } = await import("@/core/remote-uri.js");
+        const parsed = parseSSHUri(normalizedUri);
+        console.error(`✗ ${scanResult.error}`);
+        // EC2 — path not found on host
+        if (scanResult.error.includes("does not exist")) {
+          const { path: remotePath } = parsed;
+          console.error(`✗ Remote path ${remotePath} does not exist on ${parsed.hostname}`);
+        }
+        process.exit(1);
+      }
+
+      // FR2 — only save if scan succeeded
+      let updatedCfg;
+      try {
+        updatedCfg = addRemoteRootToConfig(cfg, normalizedUri);
+      } catch (err) {
+        console.error((err as Error).message);
+        process.exit(1);
+      }
+
+      const { cache } = loadRemoteCache();
+      cache.roots[normalizedUri] = {
+        scannedAt: new Date().toISOString(),
+        projects: scanResult.projects,
+      };
+      saveRemoteCache(cache);
+      saveConfig(updatedCfg);
+
+      console.log(
+        `✓ Added remote root ${normalizedUri} — found ${scanResult.projects.length} project${scanResult.projects.length === 1 ? "" : "s"}`,
+      );
+    });
+
+  config
+    .command("remove-remote-root <uri>")
+    .description("Remove a remote SSH root folder and its cached results")
+    .addHelpText(
+      "after",
+      "\nExample:\n  workon config remove-remote-root ssh://alice@devbox.corp/home/alice/projects",
+    )
+    .action(async (uri: string) => {
+      let normalizedUri: string;
+      try {
+        normalizedUri = validateAndNormalizeSSHUri(uri);
+      } catch (err) {
+        console.error((err as Error).message);
+        process.exit(1);
+      }
+
+      const cfg = loadConfig();
+      const { cache } = loadRemoteCache();
+
+      let result;
+      try {
+        result = removeRemoteRootFromConfig(cfg, cache, normalizedUri);
+      } catch (err) {
+        console.error((err as Error).message);
+        process.exit(1);
+      }
+
+      saveConfig(result.config);
+      saveRemoteCache(result.cache);
+
+      console.log(`✓ Removed remote root ${normalizedUri}`);
+      if (result.removedPinnedCount > 0) {
+        console.log(
+          `⚠ Removed ${result.removedPinnedCount} pinned project${result.removedPinnedCount === 1 ? "" : "s"} belonging to the removed remote root.`,
+        );
+      }
+    });
+
+  config
+    .command("list-remote-roots")
+    .description("List all configured remote SSH root folders")
+    .addHelpText("after", "\nExample:\n  workon config list-remote-roots")
+    .action(() => {
+      const cfg = loadConfig();
+      if (cfg.remoteRoots.length === 0) {
+        console.log("No remote roots configured.");
+        return;
+      }
+      const { cache } = loadRemoteCache();
+      const statuses = listRemoteRootStatuses(cfg, cache);
+      for (const s of statuses) {
+        const statusStr =
+          s.status === "cached" ? `cached (last scanned: ${s.lastScanned})` : "never scanned";
+        console.log(`${s.uri}  ${statusStr}`);
+      }
     });
 }

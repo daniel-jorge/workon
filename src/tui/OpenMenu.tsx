@@ -9,6 +9,7 @@ interface OpenMenuProps {
   openCommands: OpenCommand[];
   isPinned: boolean;
   isMissing: boolean;
+  isRemote?: boolean;
   onSelectOpenCommand: (command: string) => void;
   onTogglePin: () => void;
   onCancel: () => void;
@@ -23,17 +24,25 @@ export function OpenMenu({
   openCommands,
   isPinned,
   isMissing,
+  isRemote,
   onSelectOpenCommand,
   onTogglePin,
   onCancel,
 }: OpenMenuProps) {
+  // EC5 — For remote projects, only VS Code variants are allowed
+  const VSCODE_COMMANDS = new Set(["code", "code-insiders"]);
+  const isVSCodeIncompatibleRemote = isRemote === true && !VSCODE_COMMANDS.has(currentOpenCommand);
+
+  // When remote + non-VS Code, disable open options and start on pin
   const [selectedCommandIndex, setSelectedCommandIndex] = useState(
     Math.max(
       0,
       openCommands.findIndex((cmd) => cmd.command === currentOpenCommand),
     ),
   );
-  const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem>(isMissing ? "pin" : "command");
+  const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem>(
+    isMissing || isVSCodeIncompatibleRemote ? "pin" : "command",
+  );
 
   if (!visible) {
     return null;
@@ -108,7 +117,7 @@ export function OpenMenu({
       </Box>
 
       {/* Open Command Options */}
-      {!isMissing && (
+      {!isMissing && !isVSCodeIncompatibleRemote && (
         <>
           {openCommands.map((cmd, index) => {
             const isSelected = selectedMenuItem === "command" && index === selectedCommandIndex;
@@ -126,6 +135,13 @@ export function OpenMenu({
             );
           })}
         </>
+      )}
+
+      {/* EC5 — Remote project incompatible open command warning */}
+      {isVSCodeIncompatibleRemote && (
+        <Box marginBottom={1}>
+          <Text color="yellow">⚠ Remote projects require VS Code</Text>
+        </Box>
       )}
 
       {/* Pin/Unpin Option */}

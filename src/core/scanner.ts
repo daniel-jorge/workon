@@ -2,6 +2,7 @@ import fg from "fast-glob";
 import { detectProjectType, mergeProject } from "./project.js";
 import { loadDevProject } from "./devproject.js";
 import { isPinned } from "./pinning.js";
+import { loadRemoteCache, loadRemoteProjects } from "./remote-cache.js";
 import type { GlobalConfig } from "./config.js";
 import type { Project } from "@/types.js";
 
@@ -30,11 +31,28 @@ export async function scanProjects(config: GlobalConfig): Promise<Project[]> {
     }
   }
 
+  // Merge remote projects from cache (AC3, AC4)
+  if ((config.remoteRoots?.length ?? 0) > 0) {
+    const { cache, wasCorrupted } = loadRemoteCache();
+    if (wasCorrupted) {
+      process.stderr.write(
+        "⚠ Remote project cache is empty or corrupted. Run 'workon scan --remote' to rebuild.\n",
+      );
+    }
+    const remoteProjects = loadRemoteProjects(config, cache);
+    projects.push(...remoteProjects);
+  }
+
   // Sort alphabetically
   projects.sort((a, b) => a.name.localeCompare(b.name));
 
-  // Add placeholder projects for missing pinned paths
+  // Build the set of found paths for missing-pin detection.
+  // Remote project paths (SSH URIs) are present in projects if cached.
   const foundPaths = new Set(projects.map((p) => p.path));
+
+  // Add placeholder projects for missing pinned paths.
+  // SSH URIs that are pinned but not in the cache are shown as missing.
+  // SSH URIs that ARE in the cache are not missing (EC4, NFR3).
   for (const pinnedPath of config.pinned) {
     if (!foundPaths.has(pinnedPath)) {
       projects.push({

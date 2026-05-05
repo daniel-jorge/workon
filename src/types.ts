@@ -17,4 +17,7 @@ export interface Project {
   tags: string[];
   hasDevProject: boolean;
   missing?: boolean;
+  isRemote?: true;
+  sshHost?: string;
+  remotePath?: string;
 }

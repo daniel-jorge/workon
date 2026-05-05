@@ -36,6 +36,7 @@ export const GlobalConfigSchema = z.preprocess(
       .array(z.string())
       .default(["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**", "**/.venv/**"]),
     pinned: z.array(z.string()).default([]),
+    remoteRoots: z.array(z.string()).default([]),
   }),
 );
 

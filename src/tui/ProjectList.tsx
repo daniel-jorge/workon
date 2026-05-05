@@ -48,6 +48,7 @@ export function ProjectList({ projects, selectedIndex, maxVisible, config }: Pro
           >
             <Box marginRight={1}>
               <Text>{pinned ? "📌 " : ""}</Text>
+              {project.isRemote && <Text color="cyan">⌁ </Text>}
               {missing && <Text color="red">⚠️</Text>}
               <Box flexGrow={1}>
                 <Text
@@ -57,6 +58,7 @@ export function ProjectList({ projects, selectedIndex, maxVisible, config }: Pro
                   wrap="truncate-middle"
                 >
                   {project.name}
+                  {project.isRemote ? `  [${project.sshHost}]` : ""}
                 </Text>
               </Box>
               <Text color="cyan" dimColor={!isSelected}>

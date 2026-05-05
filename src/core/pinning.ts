@@ -30,7 +30,9 @@ export function validatePinnedPaths(paths: string[]): {
   const invalid: string[] = [];
 
   for (const path of paths) {
-    if (existsSync(path)) {
+    // SSH URIs are always valid — they are managed via the remote cache,
+    // not the local filesystem. Do not call existsSync on them. (NFR3)
+    if (path.startsWith("ssh://") || existsSync(path)) {
       valid.push(path);
     } else {
       invalid.push(path);

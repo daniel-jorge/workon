@@ -6,6 +6,7 @@ import { openCommand } from "@/commands/open.js";
 import { initCommand } from "@/commands/init.js";
 import { registerConfigCommand } from "@/commands/config.js";
 import { registerPinCommand } from "@/commands/pin.js";
+import { registerScanCommand } from "@/commands/scan.js";
 import { tuiCommand } from "@/commands/tui.js";
 
 const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf-8")) as {
@@ -29,5 +30,6 @@ program
 
 registerConfigCommand(program);
 registerPinCommand(program);
+registerScanCommand(program);
 
 await program.parseAsync();

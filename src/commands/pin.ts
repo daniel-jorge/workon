@@ -53,14 +53,22 @@ async function togglePinCli(name: string): Promise<void> {
     process.exit(1);
   }
 
-  const project = results[0];
+  // AC18 — if multiple projects share the same name (local + remote), disambiguate
+  const exactMatches = results.filter((p) => p.name === results[0]!.name);
+  if (exactMatches.length > 1) {
+    const { disambiguate } = await import("@/commands/open.js");
+    disambiguate(name, exactMatches);
+    process.exit(1);
+  }
+
+  const project = results[0]!;
   const updated = togglePin(project.path, config);
   await saveConfig(updated);
 
   if (isPinned(project.path, updated)) {
-    console.log(`✓ Pinned: ${project.name}`);
+    console.log(`✓ Pinned ${project.name}`);
   } else {
-    console.log(`✓ Unpinned: ${project.name}`);
+    console.log(`✓ Unpinned ${project.name}`);
   }
 }
 

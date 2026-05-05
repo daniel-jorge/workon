@@ -135,10 +135,17 @@ export function App({ config }: Props) {
                   openCommands={currentConfig.openCommands}
                   isPinned={isPinned(filtered[selectedIndex].path, currentConfig)}
                   isMissing={filtered[selectedIndex].missing === true}
+                  isRemote={filtered[selectedIndex].isRemote === true}
                   onSelectOpenCommand={async (command) => {
                     const project = filtered[selectedIndex];
                     if (project) {
-                      await openProject(project, command);
+                      try {
+                        await openProject(project, command);
+                      } catch (err) {
+                        // Remote open with incompatible command — silently ignore in TUI
+                        // (UI prevents this via isVSCodeIncompatibleRemote guard)
+                        void err;
+                      }
                       setShowOpenMenu(false);
                     }
                   }}
